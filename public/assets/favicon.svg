@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Gradientes principales -->
+  <defs>
+    <linearGradient id="grad-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2a7de1" />
+      <stop offset="100%" stop-color="#3bb273" />
+    </linearGradient>
+    <radialGradient id="grad-light" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.3)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+    </radialGradient>
+  </defs>
+
+  <!-- Círculo base -->
+  <circle cx="50" cy="50" r="45" fill="url(#grad-bg)" />
+
+  <!-- Halo difuso interior -->
+  <circle cx="50" cy="50" r="35" fill="url(#grad-light)" />
+
+  <!-- Partes simétricas que sobresalen -->
+  <path d="M50 5 L55 20 A45 45 0 0 1 80 50 L95 55 L80 50 A45 45 0 0 1 50 95 L45 80 A45 45 0 0 1 20 50 L5 45 L20 50 A45 45 0 0 1 50 5 Z" 
+        fill="rgba(255,255,255,0.15)" />
+
+  <!-- Círculos pequeños decorativos simétricos -->
+  <circle cx="50" cy="10" r="4" fill="rgba(255,255,255,0.4)" />
+  <circle cx="90" cy="50" r="4" fill="rgba(255,255,255,0.4)" />
+  <circle cx="50" cy="90" r="4" fill="rgba(255,255,255,0.4)" />
+  <circle cx="10" cy="50" r="4" fill="rgba(255,255,255,0.4)" />
+</svg>

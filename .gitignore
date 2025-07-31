@@ -1,0 +1,20 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno reales
+.env
+
+# Archivos de sistema / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Cachés / builds
+dist/
+build/
+.cache/
+
+# Logs
+*.log
+npm-debug.log*

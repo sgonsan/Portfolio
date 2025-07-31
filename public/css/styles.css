@@ -1,0 +1,427 @@
+/* Theme variables */
+:root {
+  --bg-color: #edeff1;
+  --section-bg: #f3f5f8;
+  --text-color: #1a1a1a;
+  --card-bg: #ffffff;
+  --accent-color: #8056a5;
+  --accent-secondary: #c067c4;
+  --accent-bg: #c987cf;
+  --accent-bg-secondary: #e193e8;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] {
+  --bg-color: #121418;
+  --section-bg: #1e1f24;
+  --text-color: #e6e6e6;
+  --card-bg: #1e1f24;
+  --accent-color: #ad58df;
+  --accent-secondary: #d091c2;
+  --accent-bg: #3f2a4c;
+  --accent-bg-secondary: #5c396e;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/Poppins/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Bitcount';
+  src: url('../assets/fonts/Bitcount/Bitcount-VariableFont_CRSV,ELSH,ELXP,slnt,wght.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'IntelOneMono';
+  src: url('../assets/fonts/IntelOneMono/IntelOneMono-VariableFont_wght.ttf') format ('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Reset & global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+h1 {
+  font-family: Bitcount, sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--accent-color);
+}
+
+h2 {
+  font-family: Bitcount, sans-serif;
+}
+
+p {
+  font-family: Poppins, sans-serif;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--accent-color);
+}
+
+#theme-toggle {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Sections layout */
+section {
+  max-width: 1000px;
+  background: var(--section-bg);
+  padding: 1rem;
+  margin: 1rem 2rem;
+  border-radius: 12px;
+  overflow: hidden;
+
+  box-shadow: var(--shadow);
+}
+
+/* Hero / About */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  text-align: center;
+  gap: 1rem;
+}
+
+.hero-img {
+  border-radius: 50%;
+  width: 150px;
+  border: 3px solid var(--accent-color);
+  box-shadow: var(--shadow);
+}
+
+.hero-text h2 {
+  font-size: 2rem;
+  color: var(--accent-secondary);
+}
+
+/* ========================= */
+/* Skills grid & skill cards */
+/* ========================= */
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  perspective: 800px;
+  /* Needed for visible 3D effect */
+}
+
+.skill-card {
+  position: relative;
+  background: var(--card-bg);
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: bold;
+  overflow: hidden;
+  cursor: default;
+
+  /* 3D tilt base config */
+  transform-style: preserve-3d;
+  transform-origin: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* Base shadow */
+  box-shadow: var(--shadow);
+
+  /* Initial fade-in (separado del rotateX para no interferir) */
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.skill-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.skill-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.skill-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.skill-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.skill-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.skill-card:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+.skill-card:nth-child(7) {
+  animation-delay: 0.7s;
+}
+
+.skill-card:nth-child(8) {
+  animation-delay: 0.8s;
+}
+
+/* Gradient border on hover for skill cards */
+.skill-card::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-secondary));
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.skill-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.skill-card:hover::before {
+  opacity: 1;
+  animation: glowMove 2s linear infinite;
+}
+
+/* Extra shadow when tilting */
+.skill-card.tilt {
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Keyframes for fade-in */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================== */
+/* Projects grid & project cards */
+/* =========================== */
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+
+  /* Perspective for 3D tilt */
+  perspective: 1000px;
+}
+
+.project-card {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  position: relative;
+  background: var(--card-bg);
+  padding: 1rem;
+  border-radius: 10px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  transform-style: preserve-3d;
+  transform-origin: center;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.project-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 12px;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), var(--accent-bg-secondary), var(--accent-bg) 80%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.project-card:hover::before {
+  opacity: 1;
+}
+
+.project-card>* {
+  position: relative;
+  z-index: 1;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+}
+
+.project-card h3 {
+  color: var(--accent-color);
+}
+
+.project-card a {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: var(--accent-secondary);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.project-card a:hover {
+  text-decoration: underline;
+}
+
+/* Shadow intensifies while tilted */
+.project-card.tilt {
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* =========================== */
+/* Keyframes for animations */
+/* =========================== */
+
+@keyframes glowMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Achievements */
+.achievement-list {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-top: 1rem;
+}
+
+/* Contact form */
+form {
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+input,
+textarea,
+button {
+  padding: 0.75rem;
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid #ccc;
+  box-shadow: var(--shadow);
+  /* max-width: 700px; */
+  font-size: 1rem;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus,
+textarea:focus {
+  border: 1px solid var(--accent-color);
+  outline: none;
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+button {
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: var(--accent-secondary);
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.9rem;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+}
+
+/* Responsive design */
+@media (min-width: 768px) {
+  .hero {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .hero-text {
+    max-width: 600px;
+    /* padding-left: 2rem; */
+  }
+}
+
+@media (min-width: 1064px) {
+  section {
+    margin: 2rem auto;
+  }
+}
