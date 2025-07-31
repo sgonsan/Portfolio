@@ -351,6 +351,11 @@ section {
   margin-top: 1rem;
 }
 
+li p {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 0.9rem;
+}
+
 /* Contact form */
 form {
   display: flex;
