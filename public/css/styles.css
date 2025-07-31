@@ -407,6 +407,25 @@ button:hover {
   box-shadow: var(--shadow);
 }
 
+.social-links {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.social-icon {
+  width: 28px;
+  height: 28px;
+  filter: grayscale(100%) brightness(1.2);
+  transition: filter 0.3s ease, transform 0.2s ease;
+}
+
+.social-icon:hover {
+  filter: none;
+  transform: scale(1.1);
+}
+
 /* Responsive design */
 @media (min-width: 768px) {
   .hero {
