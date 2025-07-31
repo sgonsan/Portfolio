@@ -4,8 +4,6 @@ Portfolio personal que muestra mis **habilidades, proyectos y logros profesional
 Construido con **HTML, CSS y JavaScript** para el frontend, y **Node.js + Express** para el backend.  
 Carga los proyectos de **GitHub en tiempo real** mediante la API de GitHub y permite contacto directo mediante un formulario con **Nodemailer**.
 
----
-
 ## Características principales
 
 - **Diseño moderno y responsive**
@@ -19,8 +17,6 @@ Carga los proyectos de **GitHub en tiempo real** mediante la API de GitHub y per
   - Rate limit para prevenir spam (1 mensaje por minuto).
 - **Optimizado para móvil**
   - Efectos de inclinación y animaciones suaves para pantallas pequeñas.
-
----
 
 ## Tecnologías utilizadas
 
@@ -36,8 +32,6 @@ Carga los proyectos de **GitHub en tiempo real** mediante la API de GitHub y per
 - Nodemailer para correo
 - API de GitHub para cargar proyectos
 - Express Rate Limit para protección anti-spam
-
----
 
 ## Configuración del entorno
 
@@ -57,8 +51,6 @@ MAIL_PASS=your_app_password_here
    ```
 
 2. Edita `.env` y añade tus valores reales.
-
----
 
 ## Ejecución en local
 
@@ -85,8 +77,6 @@ Para ejecutar el proyecto en tu máquina local, sigue estos pasos:
 
 El proyecto estará disponible en `http://localhost:3000`.
 
----
-
 ## Estructura del proyecto
 
 ```plaintext
@@ -99,13 +89,9 @@ portfolio/
 └── package-lock.json # Lockfile de dependencias
 ```
 
----
-
 ## Licencia
 
 Este proyecto es de uso personal. Si deseas usarlo como base, reemplaza las imágenes y credenciales con las tuyas propias.
-
----
 
 ## Autor
 
