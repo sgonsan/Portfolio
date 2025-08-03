@@ -20,6 +20,15 @@ toggleBtn.addEventListener('click', () => {
     linkedinLogo.src = theme === 'dark' ? 'assets/linkedin-logo-dark.png' : 'assets/linkedin-logo.png';
 });
 
+fetch('/api/zen')
+    .then(res => res.json())
+    .then(data => {
+        const zenElement = document.getElementById('zen-quote');
+        zenElement.textContent = `"${data.quote}"`;
+        zenElement.classList.add('visible');
+    })
+    .catch(err => console.error('Error loading zen quote:', err));
+
 fetch('/api/projects')
     .then(res => res.json())
     .then(projects => {
@@ -108,13 +117,21 @@ const submitButton = form.querySelector('button');
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Deshabilitar botón
-    submitButton.disabled = true;
-    submitButton.textContent = 'Enviando...';
-
+    // Validar campos
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
     const message = document.getElementById('message').value.trim();
+
+    if (!name || !email || !message) {
+        return alert('Por favor completa todos los campos');
+    }
+    if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
+        return alert('Por favor ingresa un email válido');
+    }
+
+    // Deshabilitar botón
+    submitButton.disabled = true;
+    submitButton.textContent = 'Enviando...';
 
     try {
         const res = await fetch('/api/contact', {
@@ -139,3 +156,11 @@ form.addEventListener('submit', async (e) => {
         submitButton.textContent = 'Enviar';
     }
 });
+
+fetch('/api/stats')
+    .then(res => res.json())
+    .then(data => {
+        const stats = document.getElementById('site-stats');
+        stats.textContent = `Visits: ${data.visits} | Last update: ${data.lastCommit}`;
+    })
+    .catch(err => console.error('Error loading stats:', err));
