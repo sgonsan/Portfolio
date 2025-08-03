@@ -30,7 +30,7 @@ app.get('/api/projects', async (req, res) => {
 
   // Si hay cache y no ha caducado
   if (cacheData && now - cacheTimestamp < CACHE_DURATION) {
-    console.log(`${now.toLocaleString()} Serving from cache`);
+    console.log('Serving from cache');
     return res.json(cacheData);
   }
 
@@ -64,10 +64,10 @@ app.get('/api/projects', async (req, res) => {
     cacheData = results;
     cacheTimestamp = now;
 
-    console.log(`${now.toLocaleString()} Serving from GitHub API`);
+    console.log('Serving from GitHub API');
     res.json(results);
   } catch (err) {
-    console.error(`${now.toLocaleString()} Error fetching projects:`, err);
+    console.error('Error fetching projects:', err);
     res.status(500).json({ error: 'Failed to fetch projects' });
   }
 });
@@ -90,7 +90,6 @@ const contactLimiter = rateLimit({
 // Endpoint para manejar formulario
 app.post('/api/contact', contactLimiter, async (req, res) => {
   const { name, email, message } = req.body;
-  const now = new Date().toLocaleString();
 
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Missing fields' });
@@ -105,16 +104,15 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
       text: `Nombre: ${name}\nEmail: ${email}\n\n${message}`
     });
 
-    console.log(`${now.toLocaleString()} Mensaje enviado de ${name} <${email}>: ${message}`);
+    console.log(`Mensaje enviado de ${name} <${email}>: ${message}`);
     res.json({ success: true, message: 'Message sent!' });
   } catch (err) {
-    console.error(`${now.toLocaleString()} Error sending message:`, err);
+    console.error(`Error sending message:`, err);
     res.status(500).json({ error: 'Failed to send message' });
   }
 });
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  const now = new Date().toLocaleString();
-  console.log(`${now} Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
