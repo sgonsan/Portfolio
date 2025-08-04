@@ -164,3 +164,115 @@ fetch('/api/stats')
         stats.textContent = `Visits: ${data.visits} | Last update: ${data.lastCommit}`;
     })
     .catch(err => console.error('Error loading stats:', err));
+
+// --- Terminal ---
+const openBtn = document.getElementById('open-terminal');
+const modal = document.getElementById('terminal-modal');
+const closeBtn = document.getElementById('close-terminal');
+const output = document.getElementById('terminal-output');
+const input = document.getElementById('terminal-input');
+
+let terminalInitialized = false;
+
+// Abrir terminal
+openBtn.addEventListener('click', () => {
+    if (!terminalInitialized) {
+        modal.style.display = 'flex';
+        input.focus();
+        printLine('Type "help" for commands.');
+    } else {
+        modal.style.display = 'none';
+        output.innerHTML = '';
+    }
+    terminalInitialized = !terminalInitialized;
+});
+
+// Cerrar terminal
+closeBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+    output.innerHTML = '';
+    terminalInitialized = false;
+});
+
+// Comandos básicos
+const commands = {
+    help: () => {
+        printLine('Available commands: help, about, projects, zen, visits, clear, exit');
+    },
+    about: () => {
+        printLine("I'm Sergio González, a developer specialized in C++ and Python.");
+    },
+    projects: () => {
+        printLine('Check my projects in the section above or at: /#projects');
+    },
+    zen: async () => {
+        printLine('Fetching Zen quote...');
+        try {
+            const res = await fetch('/api/zen');
+            const data = await res.json();
+            printLine(data.quote || 'No quote available.');
+        } catch {
+            printLine('Error fetching Zen quote.');
+        }
+    },
+    visits: async () => {
+        printLine('Fetching stats...');
+        try {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+            printLine(`Visits: ${data.visits}`);
+            printLine(`Last commit: ${data.lastCommit}`);
+        } catch {
+            printLine('Error fetching stats.');
+        }
+    },
+    clear: () => {
+        output.innerHTML = '';
+    },
+    exit: () => {
+        modal.style.display = 'none';
+        output.innerHTML = '';
+    }
+};
+
+const commandList = Object.keys(commands);
+
+// Manejo de input
+input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        const command = input.value.trim().toLowerCase();
+        if (command) {
+            printLine(`> ${command}`);
+            if (commands[command]) {
+                commands[command]();
+            } else {
+                printLine(`Command not found: ${command}`);
+            }
+        }
+        input.value = '';
+        scrollToBottom();
+    } else if (e.key === 'Tab') {
+        e.preventDefault();
+        const current = input.value;
+        const matches = commandList.filter(cmd => cmd.startsWith(current));
+
+        if (matches.length === 1) {
+            // Autocompletar directamente
+            input.value = matches[0];
+        } else if (matches.length > 1) {
+            // Mostrar sugerencias
+            printLine(matches.join('   '));
+        }
+    }
+});
+
+// Funciones auxiliares
+function printLine(text) {
+    const line = document.createElement('div');
+    line.textContent = text;
+    output.appendChild(line);
+}
+
+function scrollToBottom() {
+    output.scrollTop = output.scrollHeight;
+}
