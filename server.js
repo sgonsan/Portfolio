@@ -7,21 +7,23 @@ const zenRoutes = require('./routes/zen');
 const projectsRoutes = require('./routes/projects');
 const contactRoutes = require('./routes/contact');
 const statsRoutes = require('./routes/stats');
+const fsRoutes = require('./routes/fs');
 
 const app = express();
 const PORT = process.env.NODE_ENV === 'production' ? 8080 : 3000;
 
-// Middlewares globales
+// Middleware
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 
-// Rutas
+// Routes
 app.use('/api/zen', zenRoutes);
 app.use('/api/projects', projectsRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/fs', fsRoutes);
 
-// Iniciar servidor
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

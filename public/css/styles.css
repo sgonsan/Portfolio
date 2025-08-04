@@ -11,6 +11,32 @@
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+/* success */
+.color-green {
+  color: #00ff7f;
+}
+
+/* info */
+.color-blue {
+  color: #57a6ff;
+}
+
+/* error */
+.color-red {
+  color: #ff5f5f;
+}
+
+/* warning */
+.color-yellow {
+  color: #ffd95f;
+}
+
+/* accent */
+.color-purple {
+  color: #c586ff;
+}
+
+
 [data-theme="dark"] {
   --bg-color: #121418;
   --section-bg: #1e1f24;
@@ -39,7 +65,7 @@
 
 @font-face {
   font-family: 'IntelOneMono';
-  src: url('../assets/fonts/IntelOneMono/IntelOneMono-VariableFont_wght.ttf') format ('truetype');
+  src: url('../assets/fonts/Intel_One_Mono/IntelOneMono-VariableFont_wght.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
 }
@@ -453,7 +479,6 @@ button:hover {
 }
 
 /* Terminal modal */
-/* Botón flotante */
 #open-terminal {
   position: fixed;
   bottom: 1rem;
@@ -466,10 +491,14 @@ button:hover {
   font-family: 'IntelOneMono', monospace;
   font-size: 1rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 1000;
   box-shadow: var(--shadow);
   transition: background 0.3s ease;
 }
+
 #open-terminal:hover {
   background: var(--accent-secondary);
 }
@@ -493,21 +522,26 @@ button:hover {
   overflow: hidden;
 }
 
-/* Vista móvil: pantalla completa */
+/* Vista móvil: modal centrado con margen y texto más pequeño */
 @media (max-width: 768px) {
   .terminal-modal {
-    top: 0;
-    left: 0;
-    transform: none;
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
+    max-width: 768px;
+    width: 90%;
+    height: 70vh;
+    margin-top: 3rem;
+    border-radius: 10px;
+    box-sizing: border-box;
+  }
+
+  .terminal-output,
+  #terminal-input {
+    font-size: 0.8rem;
   }
 }
 
 /* Encabezado del terminal */
 .terminal-header {
-  background: var(--accent-color);
+  background: var(--accent-bg);
   color: #fff;
   padding: 0.5rem;
   font-family: 'IntelOneMono', monospace;
@@ -518,11 +552,15 @@ button:hover {
 
 /* Botón de cierre */
 #close-terminal {
-  background: none;
+  background: var(--accent-color);
   border: none;
   color: #fff;
   font-size: 1.2rem;
   cursor: pointer;
+}
+
+#close-terminal:hover {
+  background: var(--accent-secondary);
 }
 
 /* Área de salida */

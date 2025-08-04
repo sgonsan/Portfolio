@@ -52,7 +52,7 @@ let lastScrollY = window.scrollY;
 let lastTime = Date.now();
 
 function handleScrollTilt() {
-    if (window.innerWidth >= 768) return; // Solo en móvil
+    if (window.innerWidth >= 768) return; // only for mobile
 
     const now = Date.now();
     const deltaY = window.scrollY - lastScrollY;
@@ -65,10 +65,10 @@ function handleScrollTilt() {
     const tiltSmall = Math.max(Math.min(velocity * 500, maxTiltSmall), -maxTiltSmall);
     const tiltLarge = Math.max(Math.min(velocity * 10, maxTiltLarge), -maxTiltLarge);
 
-    // Aplicar tilt y sombra dinámica
+    // Apply tilt effect
     document.querySelectorAll('.skill-card').forEach(card => {
         card.classList.add('tilt');
-        card.style.transform = `rotateX(${tiltSmall * -1}deg)`; // invertimos para que se levante
+        card.style.transform = `rotateX(${tiltSmall * -1}deg)`;
     });
 
     document.querySelectorAll('.project-card').forEach(card => {
@@ -117,21 +117,21 @@ const submitButton = form.querySelector('button');
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Validar campos
+    // Validate fields
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
     const message = document.getElementById('message').value.trim();
 
     if (!name || !email || !message) {
-        return alert('Por favor completa todos los campos');
+        return alert('Please fill in all fields');
     }
     if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
-        return alert('Por favor ingresa un email válido');
+        return alert('Please enter a valid email address');
     }
 
-    // Deshabilitar botón
+    // Deactivate button to prevent multiple submissions
     submitButton.disabled = true;
-    submitButton.textContent = 'Enviando...';
+    submitButton.textContent = 'Sending...';
 
     try {
         const res = await fetch('/api/contact', {
@@ -143,17 +143,17 @@ form.addEventListener('submit', async (e) => {
         const data = await res.json();
 
         if (data.success) {
-            alert('Mensaje enviado correctamente');
+            alert('Message sent successfully!');
             form.reset();
         } else {
-            alert('Error al enviar: ' + (data.error || 'Intenta más tarde'));
+            alert('Error sending: ' + (data.error || 'Please try again later'));
         }
     } catch (err) {
-        alert('Error al enviar mensaje');
+        alert('Error sending message');
     } finally {
-        // Reactivar botón (por si quieres permitir otro envío después)
+        // Reactivate button
         submitButton.disabled = false;
-        submitButton.textContent = 'Enviar';
+        submitButton.textContent = 'Send';
     }
 });
 
@@ -165,7 +165,6 @@ fetch('/api/stats')
     })
     .catch(err => console.error('Error loading stats:', err));
 
-// --- Terminal ---
 const openBtn = document.getElementById('open-terminal');
 const modal = document.getElementById('terminal-modal');
 const closeBtn = document.getElementById('close-terminal');
@@ -173,8 +172,9 @@ const output = document.getElementById('terminal-output');
 const input = document.getElementById('terminal-input');
 
 let terminalInitialized = false;
+let currentPath = '/';
 
-// Abrir terminal
+// Open terminal
 openBtn.addEventListener('click', () => {
     if (!terminalInitialized) {
         modal.style.display = 'flex';
@@ -183,24 +183,47 @@ openBtn.addEventListener('click', () => {
     } else {
         modal.style.display = 'none';
         output.innerHTML = '';
+        currentPath = '/';
     }
     terminalInitialized = !terminalInitialized;
 });
 
-// Cerrar terminal
+// Close terminal
 closeBtn.addEventListener('click', () => {
     modal.style.display = 'none';
     output.innerHTML = '';
     terminalInitialized = false;
+    currentPath = '/';
 });
 
-// Comandos básicos
+// Basic terminal commands
 const commands = {
     help: () => {
-        printLine('Available commands: help, about, projects, zen, visits, clear, exit');
+        printLine('<span class="color-blue">Available commands:</span>');
+        printLine('<span class="color-green">help</span> - Show this help menu');
+        printLine('<span class="color-green">about</span> - Display portfolio info');
+        printLine('<span class="color-green">projects</span> - List portfolio projects');
+        printLine('<span class="color-green">zen</span> - Get a random GitHub Zen quote');
+        printLine('<span class="color-green">visits</span> - Show visit count and last commit');
+        printLine('<span class="color-green">clear</span> - Clear the terminal');
+        printLine('<span class="color-green">exit</span> - Close the terminal');
+        printLine('<span class="color-green">echo &lt;text&gt;</span> - Print text');
+        printLine('<span class="color-green">ls</span> - Fake directory listing');
     },
     about: () => {
-        printLine("I'm Sergio González, a developer specialized in C++ and Python.");
+        const ascii = `
+<pre class="color-purple">
+  ____       _ _   _      
+ |  _ \\ ___ | | |_| | ___ 
+ | |_) / _ \\| | __| |/ _ \\
+ |  __/ (_) | | |_| |  __/
+ |_|   \\___/|_|\\__|_|\\___|
+</pre>`;
+
+        printLine(ascii);
+        printLine('<span class="color-green">Name:</span> Sergio González');
+        printLine('<span class="color-green">Role:</span> C++ & Python Developer');
+        printLine('<span class="color-green">Projects:</span> Check the Projects section above');
     },
     projects: () => {
         printLine('Check my projects in the section above or at: /#projects');
@@ -214,6 +237,7 @@ const commands = {
         } catch {
             printLine('Error fetching Zen quote.');
         }
+        scrollToBottom();
     },
     visits: async () => {
         printLine('Fetching stats...');
@@ -230,49 +254,247 @@ const commands = {
         output.innerHTML = '';
     },
     exit: () => {
+        terminalInitialized = false;
         modal.style.display = 'none';
         output.innerHTML = '';
+        currentPath = '/';
+    },
+    echo: (args) => {
+        printLine(args.join(' '));
+    },
+    pwd: () => {
+        printLine(currentPath);
+    },
+    ls: async (args) => {
+        await listDir(args[0]);
+    },
+    cd: async (args) => {
+        await changeDir(args[0]);
     }
+
 };
 
 const commandList = Object.keys(commands);
+let history = [];
+let historyIndex = -1;
 
-// Manejo de input
+// Handle input
 input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        const command = input.value.trim().toLowerCase();
+    if (e.key === 'Escape' && modal.style.display === 'flex') {
+        terminalInitialized = false;
+        modal.style.display = 'none';
+        output.innerHTML = '';
+        currentPath = '/';
+    } else if (e.key === 'Enter') {
+        const raw = input.value.trim();
+        const [cmd, ...args] = raw.split(' ');
+        const command = cmd.toLowerCase();
+
         if (command) {
-            printLine(`> ${command}`);
+            if (history[history.length - 1] !== raw) {
+                history.push(raw);
+            }
+            historyIndex = history.length;
+            printLine(`${currentPath}> ${raw}`);
             if (commands[command]) {
-                commands[command]();
+                commands[command](args);
             } else {
                 printLine(`Command not found: ${command}`);
             }
+        } else {
+            printLine(`${currentPath}> `);
         }
         input.value = '';
         scrollToBottom();
     } else if (e.key === 'Tab') {
         e.preventDefault();
-        const current = input.value;
-        const matches = commandList.filter(cmd => cmd.startsWith(current));
 
-        if (matches.length === 1) {
-            // Autocompletar directamente
-            input.value = matches[0];
-        } else if (matches.length > 1) {
-            // Mostrar sugerencias
-            printLine(matches.join('   '));
+        const { command, dir, partial } = splitPathForAutocomplete(input.value.trim());
+
+        if (command === 'cd' || command === 'ls') {
+            // Autocompletion for cd and ls commands
+            const targetPath = dir ? `${currentPath}/${dir}` : currentPath;
+
+            // Filter
+            getEntriesForPath(targetPath).then(entries => {
+                const matches = entries
+                    .filter(entry => entry.name.startsWith(partial))
+                    .filter(entry => command === 'cd' ? entry.type === 'dir' : true)
+                    .map(entry => entry.name);
+
+                if (matches.length === 1) {
+                    // Autocomplete single match
+                    const entry = entries.find(e => e.name === matches[0]);
+                    if (entry && entry.type === 'dir') {
+                        const newPath = dir ? `${dir}/${matches[0]}/` : `${matches[0]}/`;
+                        input.value = `${command} ${newPath}`;
+                    } else {
+                        const newPath = dir ? `${dir}/${matches[0]}` : matches[0];
+                        input.value = `${command} ${newPath}`;
+                    }
+                } else if (matches.length > 1) {
+                    // Show options
+                    const matchedText = matches.reduce((acc, name) => {
+                        let i = 0;
+                        while (i < acc.length && i < name.length && acc[i] === name[i]) {
+                            i++;
+                        }
+                        return acc.slice(0, i);
+                    });
+                    input.value = dir ? `${command} ${dir}/${matchedText}` : `${command} ${matchedText}`;
+                    const line = document.createElement('div');
+                    matches.forEach((name, idx) => {
+                        const entry = entries.find(e => e.name === name);
+                        const span = document.createElement('span');
+                        span.textContent = name + (idx < matches.length - 1 ? '   ' : '');
+                        span.style.marginRight = '5px';
+                        span.style.color = entry && entry.type === 'dir' ? '#4EA1FF' : 'var(--color-text)';
+                        line.appendChild(span);
+                    });
+                    output.appendChild(line);
+                    scrollToBottom();
+                }
+            });
+        } else {
+            // Autocompletion for other commands
+            const matches = commandList.filter(c => c.startsWith(command));
+            if (matches.length === 1) {
+                input.value = `${matches[0]} `;
+            } else if (matches.length > 1) {
+                const line = document.createElement('div');
+                matches.forEach((match, idx) => {
+                    const span = document.createElement('span');
+                    span.textContent = match + (idx < matches.length - 1 ? '   ' : '');
+                    span.style.marginRight = '5px';
+                    span.style.color = 'var(--color-text)';
+                    line.appendChild(span);
+                });
+                output.appendChild(line);
+                scrollToBottom();
+            }
         }
+    } else if (e.key === 'ArrowUp') {
+        if (historyIndex > 0) {
+            historyIndex--;
+            input.value = history[historyIndex];
+        }
+        moveCursorToEnd();
+    } else if (e.key === 'ArrowDown') {
+        if (historyIndex < history.length - 1) {
+            historyIndex++;
+            input.value = history[historyIndex];
+        } else {
+            historyIndex = history.length;
+            input.value = '';
+        }
+        moveCursorToEnd();
     }
 });
 
-// Funciones auxiliares
-function printLine(text) {
+// Print a line in the terminal output
+function printLine(text, className = '') {
     const line = document.createElement('div');
-    line.textContent = text;
+    line.innerHTML = text;
+    if (className) line.classList.add(className);
     output.appendChild(line);
+    scrollToBottom();
 }
 
+// Scroll to the bottom of the terminal output
 function scrollToBottom() {
     output.scrollTop = output.scrollHeight;
+}
+
+// Move cursor to the end of the input field
+function moveCursorToEnd() {
+    input.focus();
+    const length = input.value.length;
+    input.setSelectionRange(length, length);
+}
+
+// Utility function to join paths
+function pathJoin(base, target) {
+    if (target.startsWith('/')) return target;
+    const parts = [...base.split('/').filter(Boolean), ...target.split('/').filter(Boolean)];
+    return '/' + parts.join('/');
+}
+
+async function listDir(target) {
+    const res = await fetch(`/api/fs?path=${encodeURIComponent(target || currentPath)}`);
+    const data = await res.json();
+
+    if (data.error) {
+        printLine(`Error: ${data.error}`);
+        return;
+    }
+
+    // If data.entries is an array, list them; if it's a single file, show its name
+    if (Array.isArray(data.entries)) {
+        const line = document.createElement('div');
+        data.entries.forEach((entry, idx) => {
+            const span = document.createElement('span');
+            span.textContent = entry.name + (idx < data.entries.length - 1 ? '   ' : '');
+            span.style.color = entry.type === 'dir' ? '#4EA1FF' : 'var(--color-text)';
+            span.style.marginRight = '5px';
+            line.appendChild(span);
+        });
+        output.appendChild(line);
+    } else if (data.file) {
+        // Single file or directory
+        const span = document.createElement('span');
+        span.textContent = data.file;
+        span.style.color = 'var(--color-text)';
+        span.style.marginRight
+        output.appendChild(span);
+    } else {
+        printLine('No entries found.');
+    }
+    scrollToBottom();
+}
+
+async function changeDir(target) {
+    if (!target || target === '/') {
+        currentPath = '/';
+        return;
+    }
+
+    if (target === '..') {
+        // Go up one directory
+        const parts = currentPath.split('/').filter(Boolean);
+        parts.pop();
+        currentPath = '/' + parts.join('/');
+        return;
+    }
+
+    // Verify if target is a valid directory
+    const newPath = pathJoin(currentPath, target);
+    const res = await fetch(`/api/fs?path=${encodeURIComponent(newPath)}`);
+    const data = await res.json();
+
+    if (data.error) {
+        printLine(`cd: ${target}: No such file or directory`);
+        return;
+    }
+
+    currentPath = newPath;
+}
+
+async function getEntriesForPath(path) {
+    const res = await fetch(`/api/fs?path=${encodeURIComponent(path)}`);
+    const data = await res.json();
+    if (data.error) return [];
+    return data.entries;
+}
+
+function splitPathForAutocomplete(inputValue) {
+    const parts = inputValue.split(' ');
+    const command = parts[0];
+    let partialPath = parts[1] || '';
+
+    // Get directory and partial path
+    const lastSlash = partialPath.lastIndexOf('/');
+    const dir = lastSlash !== -1 ? partialPath.slice(0, lastSlash) : '';
+    const partial = lastSlash !== -1 ? partialPath.slice(lastSlash + 1) : partialPath;
+
+    return { command, dir, partial };
 }
