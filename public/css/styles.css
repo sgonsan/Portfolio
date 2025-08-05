@@ -205,7 +205,7 @@ section {
   /* Base shadow */
   box-shadow: var(--shadow);
 
-  /* Initial fade-in (separado del rotateX para no interferir) */
+  /* Initial fade-in animation */
   opacity: 0;
   animation: fadeInUp 0.6s ease forwards;
 }
@@ -522,7 +522,7 @@ button:hover {
   overflow: hidden;
 }
 
-/* Vista móvil: modal centrado con margen y texto más pequeño */
+/* Responsive terminal modal */
 @media (max-width: 768px) {
   .terminal-modal {
     max-width: 768px;
@@ -539,7 +539,7 @@ button:hover {
   }
 }
 
-/* Encabezado del terminal */
+/* Terminal header */
 .terminal-header {
   background: var(--accent-bg);
   color: #fff;
@@ -550,7 +550,7 @@ button:hover {
   align-items: center;
 }
 
-/* Botón de cierre */
+/* Close button */
 #close-terminal {
   background: var(--accent-color);
   border: none;
@@ -563,7 +563,7 @@ button:hover {
   background: var(--accent-secondary);
 }
 
-/* Área de salida */
+/* Terminal output */
 .terminal-output {
   flex: 1;
   padding: 0.5rem;
@@ -574,7 +574,7 @@ button:hover {
   background: var(--card-bg);
 }
 
-/* Input */
+/* Terminal input */
 #terminal-input {
   border: none;
   border-top: 1px solid var(--accent-color);

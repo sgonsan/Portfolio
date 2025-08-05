@@ -1,42 +1,54 @@
 const fs = require('fs');
 const path = require('path');
 
-const publicRoot = path.join(__dirname, '..', 'public');
+const PUBLIC_PATH = path.join(__dirname, '../public');
 
-exports.listDirectory = (req, res) => {
-  const relPath = req.query.path || '/';
-  const safePath = path.normalize(path.join(publicRoot, relPath));
+// Cache
+let cachedTree = null;
+let lastUpdate = 0;
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 
-  // Prevent directory traversal attacks
-  if (!safePath.startsWith(publicRoot)) {
-    return res.status(400).json({ error: 'Invalid path' });
+// Recursively build the file system tree
+function buildTree(dir, base = '') {
+  const result = [];
+  const items = fs.readdirSync(dir, { withFileTypes: true });
+
+  for (const item of items) {
+    const relativePath = path.join(base, item.name);
+    if (item.isDirectory()) {
+      result.push({
+        name: item.name,
+        type: 'dir',
+        children: buildTree(path.join(dir, item.name), relativePath)
+      });
+    } else {
+      result.push({
+        name: item.name,
+        type: 'file'
+      });
+    }
   }
 
-  if (fs.existsSync(safePath)) {
-    const stat = fs.lstatSync(safePath);
-    if (stat.isDirectory()) {
-      try {
-        const entries = fs.readdirSync(safePath, { withFileTypes: true })
-          .map(entry => ({
-            name: entry.name,
-            type: entry.isDirectory() ? 'dir' : 'file'
-          }));
+  return result;
+}
 
-        console.log(`Listed directory: ${relPath}`);
-        res.json({ path: relPath, entries });
-      } catch {
-        console.error(`Failed to list directory: ${relPath}`);
-        res.status(404).json({ error: 'Directory not found' });
-      }
-    } else if (stat.isFile()) {
-      console.log(`Accessed file: ${relPath}`);
-      res.json({ path: relPath, file: path.basename(safePath) });
-    } else {
-      console.error(`Not a file or directory: ${relPath}`);
-      res.status(400).json({ error: 'Not a file or directory' });
-    }
-  } else {
-    console.error(`Path not found: ${relPath}`);
-    res.status(404).json({ error: 'Path not found' });
+exports.getFileSystem = (req, res) => {
+  const now = Date.now();
+
+  // Check if the cache is still valid
+  if (cachedTree && now - lastUpdate < CACHE_DURATION) {
+    console.log('Returning cached file system tree');
+    return res.json(cachedTree);
+  }
+
+  // If cache is invalid or doesn't exist, rebuild the tree
+  try {
+    cachedTree = buildTree(PUBLIC_PATH);
+    lastUpdate = now;
+    console.log('File system tree rebuilt');
+    res.json(cachedTree);
+  } catch (err) {
+    console.error('Error building filesystem tree:', err);
+    res.status(500).json({ error: 'Failed to build filesystem tree' });
   }
 };

@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 let zenCache = { text: null, timestamp: 0 };
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutos
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 
 exports.getZenQuote = async (req, res) => {
   const now = Date.now();

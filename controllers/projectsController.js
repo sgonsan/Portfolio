@@ -6,7 +6,7 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const projectsPath = path.join(__dirname, '../projects.json');
 
 let projectsCache = { data: null, timestamp: 0 };
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutos
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 
 exports.getProjects = async (req, res) => {
   const now = Date.now();

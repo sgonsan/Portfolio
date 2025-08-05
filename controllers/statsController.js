@@ -11,13 +11,13 @@ if (!fs.existsSync(statsPath)) {
 
 exports.getStats = async (req, res) => {
   try {
-    // Incrementar visitas
+    // Update visit count
     let stats = JSON.parse(fs.readFileSync(statsPath, 'utf8'));
     stats.visits += 1;
     fs.writeFileSync(statsPath, JSON.stringify(stats), 'utf8');
 
-    // Último commit
-    const repoPath = 'sgonsan/portfolio'; // Ajusta si cambia el repo
+    // Last commit
+    const repoPath = 'sgonsan/portfolio'; // Adjust this to your repo path
     const apiUrl = `https://api.github.com/repos/${repoPath}/commits?per_page=1`;
 
     const response = await fetch(apiUrl, {

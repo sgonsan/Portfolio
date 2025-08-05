@@ -16,24 +16,24 @@ exports.handleContact = async (req, res) => {
   }
 
   try {
-    // Email a ti mismo
+    // Email to me
     await transporter.sendMail({
       from: `"Portfolio Contact" <${process.env.MAIL_USER}>`,
       to: process.env.MAIL_USER,
-      subject: `Nuevo mensaje de ${name}`,
+      subject: `New message from ${name}`,
       replyTo: email,
-      text: `Nombre: ${name}\nEmail: ${email}\n\n${message}`
+      text: `Name: ${name}\nEmail: ${email}\n\n${message}`
     });
 
-    // Respuesta automática al usuario
+    // Automatic reply to user
     await transporter.sendMail({
       from: `"Portfolio Contact" <${process.env.MAIL_USER}>`,
       to: email,
-      subject: 'Gracias por tu mensaje',
-      text: `Hola ${name},\n\nGracias por tu mensaje. Nos pondremos en contacto contigo pronto.\n\nUn saludo\nSergio González`
+      subject: 'Thanks for contacting me!',
+      text: `Hi ${name},\n\nThanks for your message. We'll get back to you soon.\n\nBest regards,\nSergio González`
     });
 
-    console.log(`Mensaje enviado de ${name} <${email}>: ${message}`);
+    console.log(`Message sent from ${name} <${email}>: ${message}`);
     res.json({ success: true, message: 'Message sent!' });
   } catch (err) {
     console.error('Error sending contact message:', err);
