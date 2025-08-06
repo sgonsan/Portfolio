@@ -572,30 +572,34 @@ button:hover {
   width: 100%;
 }
 
-.terminal-buttons {
+.virtual-buttons {
   display: none;
-  justify-content: space-between;
-  background: var(--accent-bg);
-  padding: 0.3rem;
-  border-top: 1px solid var(--accent-color);
+  justify-content: space-around;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #dba1f7;
+  border-top: 2px solid #aa6ec8;
+  border-radius: 0 0 12px 12px;
 }
 
-.terminal-buttons button {
+.virtual-buttons button {
   flex: 1;
-  margin: 0 0.2rem;
-  padding: 0.4rem;
-  font-family: 'IntelOneMono', monospace;
-  font-size: 1rem;
-  background: var(--accent-color);
+  padding: 0.6rem 0;
   border: none;
-  color: #fff;
-  border-radius: 4px;
-  cursor: pointer;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  background-color: #b369d6;
+  color: white;
+  font-weight: bold;
+  box-shadow: inset 1px 1px 2px #8845af, inset -1px -1px 2px #c586e4;
 }
 
-.terminal-buttons button:hover {
-  background: var(--accent-secondary);
+.virtual-buttons button:active {
+  background-color: #9f4fc5;
+  box-shadow: inset 2px 2px 4px #72318c, inset -1px -1px 1px #c586e4;
 }
+
+
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -616,14 +620,11 @@ button:hover {
     overflow-y: auto;
   }
 
-  .terminal-buttons {
+  .virtual-buttons {
     display: flex;
-    justify-content: space-between;
-    background: var(--accent-bg);
-    padding: 0.3rem;
   }
 
-  .terminal-buttons button {
+  .virtual-buttons button {
     flex: 1;
     margin: 0 0.2rem;
     background: var(--accent-color);
@@ -633,10 +634,6 @@ button:hover {
     font-size: 1rem;
     padding: 0.4rem;
     cursor: pointer;
-  }
-
-  .terminal-buttons button:hover {
-    background: var(--accent-secondary);
   }
 }
 

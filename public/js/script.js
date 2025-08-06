@@ -405,21 +405,22 @@ input.addEventListener('keydown', (e) => {
     }
 });
 
+const inputBtns = document.getElementById('terminal-input');
+
 document.getElementById('btn-tab').addEventListener('click', () => {
-    const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true });
-    input.dispatchEvent(event);
+    const e = new KeyboardEvent('keydown', { key: 'Tab' });
+    inputBtns.dispatchEvent(e);
 });
 
 document.getElementById('btn-up').addEventListener('click', () => {
-    const event = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true });
-    input.dispatchEvent(event);
+    const e = new KeyboardEvent('keydown', { key: 'ArrowUp' });
+    inputBtns.dispatchEvent(e);
 });
 
 document.getElementById('btn-down').addEventListener('click', () => {
-    const event = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true });
-    input.dispatchEvent(event);
+    const e = new KeyboardEvent('keydown', { key: 'ArrowDown' });
+    inputBtns.dispatchEvent(e);
 });
-
 
 
 // ----- Autocomplete -----
