@@ -14,7 +14,10 @@ exports.getStats = async (req, res) => {
     // Update visit count
     let stats = JSON.parse(fs.readFileSync(statsPath, 'utf8'));
     stats.visits += 1;
-    fs.writeFileSync(statsPath, JSON.stringify(stats), 'utf8');
+    res.json({
+      visits: stats.visits,
+      lastCommit: stats.lastCommit,
+    });
 
     // Last commit
     const repoPath = 'sgonsan/portfolio'; // Adjust this to your repo path
@@ -30,11 +33,8 @@ exports.getStats = async (req, res) => {
     if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
     const commits = await response.json();
     const lastCommit = commits[0]?.commit?.author?.date || 'Unknown';
-
-    res.json({
-      visits: stats.visits,
-      lastCommit: new Date(lastCommit).toLocaleDateString('en-GB')
-    });
+    stats.lastCommit = new Date(lastCommit).toLocaleDateString('es-ES');
+    fs.writeFileSync(statsPath, JSON.stringify(stats), 'utf8');
   } catch (err) {
     console.error('Error fetching stats:', err);
     res.status(500).json({ error: 'Failed to fetch stats' });
