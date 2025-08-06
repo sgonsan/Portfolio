@@ -588,6 +588,36 @@ button:hover {
   width: 100%;
 }
 
+.terminal-controls {
+  display: none;
+  justify-content: space-between;
+  background: var(--accent-bg);
+  padding: 0.3rem;
+  border-top: 1px solid var(--accent-color);
+}
+
+.terminal-controls button {
+  flex: 1;
+  margin: 0 0.2rem;
+  padding: 0.4rem;
+  font-family: 'IntelOneMono', monospace;
+  font-size: 1rem;
+  background: var(--accent-color);
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.terminal-controls button:hover {
+  background: var(--accent-secondary);
+}
+
+@media (max-width: 768px) {
+  .terminal-controls {
+    display: flex;
+  }
+}
 
 /* Responsive design */
 @media (min-width: 768px) {

@@ -108,8 +108,8 @@ container.addEventListener('mousemove', (e) => {
     const rect = card.getBoundingClientRect();
     const mouseX = ((e.clientX - rect.left) / rect.width) * 100;
     const mouseY = ((e.clientY - rect.top) / rect.height) * 100;
-    card.style.setProperty('--mouse-x', `${ mouseX }%`);
-    card.style.setProperty('--mouse-y', `${ mouseY }%`);
+    card.style.setProperty('--mouse-x', `${mouseX}%`);
+    card.style.setProperty('--mouse-y', `${mouseY}%`);
 });
 
 container.addEventListener('mouseleave', (e) => {
@@ -315,13 +315,13 @@ const commands = {
         if (!entries.length) {
             // Check if the argument is a valid file
             if (args[0]) {
-            const parentPath = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
-            const parentEntries = listEntriesAtPath(parentPath);
-            const fileName = targetPath.split('/').pop();
-            const fileEntry = parentEntries.find(e => e.name === fileName && e.type === 'file');
-            if (fileEntry) {
-                return printLine(fileEntry.name);
-            }
+                const parentPath = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
+                const parentEntries = listEntriesAtPath(parentPath);
+                const fileName = targetPath.split('/').pop();
+                const fileEntry = parentEntries.find(e => e.name === fileName && e.type === 'file');
+                if (fileEntry) {
+                    return printLine(fileEntry.name);
+                }
             }
             return printLine('(empty)');
         }
@@ -404,6 +404,28 @@ input.addEventListener('keydown', (e) => {
         moveCursorToEnd();
     }
 });
+
+const controls = document.getElementById('terminal-controls');
+
+controls.addEventListener('click', (e) => {
+    const action = e.target.dataset.action;
+    if (!action) return;
+
+    if (action === 'tab') { // Simulate Tab key press
+        const tabEvent = new KeyboardEvent('keydown', { key: 'Tab' });
+        input.focus();
+        input.dispatchEvent(tabEvent);
+    } else if (action === 'up') { // Simulate ArrowUp key press
+        const upEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' });
+        input.focus();
+        input.dispatchEvent(upEvent);
+    } else if (action === 'down') { // Simulate ArrowDown key press
+        const downEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' });
+        input.focus();
+        input.dispatchEvent(downEvent);
+    }
+});
+
 
 // ----- Autocomplete -----
 function handleAutocomplete(value) {
