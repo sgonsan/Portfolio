@@ -523,22 +523,6 @@ button:hover {
 }
 
 /* Responsive terminal modal */
-@media (max-width: 768px) {
-  .terminal-modal {
-    max-width: 300px;
-    width: 90%;
-    height: 50vh;
-    margin-top: 3rem;
-    margin-bottom: 3rem;
-    border-radius: 10px;
-    box-sizing: border-box;
-  }
-
-  .terminal-output,
-  #terminal-input {
-    font-size: 0.8rem;
-  }
-}
 
 /* Terminal header */
 .terminal-header {
@@ -588,7 +572,7 @@ button:hover {
   width: 100%;
 }
 
-.terminal-controls {
+.terminal-buttons {
   display: none;
   justify-content: space-between;
   background: var(--accent-bg);
@@ -596,7 +580,7 @@ button:hover {
   border-top: 1px solid var(--accent-color);
 }
 
-.terminal-controls button {
+.terminal-buttons button {
   flex: 1;
   margin: 0 0.2rem;
   padding: 0.4rem;
@@ -609,17 +593,53 @@ button:hover {
   cursor: pointer;
 }
 
-.terminal-controls button:hover {
+.terminal-buttons button:hover {
   background: var(--accent-secondary);
 }
 
+/* Responsive design */
 @media (max-width: 768px) {
-  .terminal-controls {
+  .terminal-modal {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 100%;
+    height: 50vh;
+    margin: 0;
+  }
+
+  .terminal-output {
+    height: calc(100% - 40px);
+    /* 40px del input */
+    overflow-y: auto;
+  }
+
+  .terminal-buttons {
     display: flex;
+    justify-content: space-between;
+    background: var(--accent-bg);
+    padding: 0.3rem;
+  }
+
+  .terminal-buttons button {
+    flex: 1;
+    margin: 0 0.2rem;
+    background: var(--accent-color);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    padding: 0.4rem;
+    cursor: pointer;
+  }
+
+  .terminal-buttons button:hover {
+    background: var(--accent-secondary);
   }
 }
 
-/* Responsive design */
 @media (min-width: 768px) {
   .hero {
     flex-direction: row;

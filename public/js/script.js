@@ -405,26 +405,21 @@ input.addEventListener('keydown', (e) => {
     }
 });
 
-const controls = document.getElementById('terminal-controls');
-
-controls.addEventListener('click', (e) => {
-    const action = e.target.dataset.action;
-    if (!action) return;
-
-    if (action === 'tab') { // Simulate Tab key press
-        const tabEvent = new KeyboardEvent('keydown', { key: 'Tab' });
-        input.focus();
-        input.dispatchEvent(tabEvent);
-    } else if (action === 'up') { // Simulate ArrowUp key press
-        const upEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' });
-        input.focus();
-        input.dispatchEvent(upEvent);
-    } else if (action === 'down') { // Simulate ArrowDown key press
-        const downEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' });
-        input.focus();
-        input.dispatchEvent(downEvent);
-    }
+document.getElementById('btn-tab').addEventListener('click', () => {
+    const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true });
+    input.dispatchEvent(event);
 });
+
+document.getElementById('btn-up').addEventListener('click', () => {
+    const event = new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true });
+    input.dispatchEvent(event);
+});
+
+document.getElementById('btn-down').addEventListener('click', () => {
+    const event = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true });
+    input.dispatchEvent(event);
+});
+
 
 
 // ----- Autocomplete -----
