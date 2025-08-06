@@ -98,6 +98,28 @@ function handleScrollTilt() {
 window.addEventListener('scroll', handleScrollTilt);
 
 // =======================
+// Mouse move effect on project cards
+// =======================
+const container = document.getElementById('projects-grid');
+
+container.addEventListener('mousemove', (e) => {
+    const card = e.target.closest('.project-card');
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const mouseX = ((e.clientX - rect.left) / rect.width) * 100;
+    const mouseY = ((e.clientY - rect.top) / rect.height) * 100;
+    card.style.setProperty('--mouse-x', `${ mouseX }%`);
+    card.style.setProperty('--mouse-y', `${ mouseY }%`);
+});
+
+container.addEventListener('mouseleave', (e) => {
+    const card = e.target.closest('.project-card');
+    if (!card) return;
+    card.style.setProperty('--mouse-x', `50%`);
+    card.style.setProperty('--mouse-y', `50%`);
+});
+
+// =======================
 // Contact form
 // =======================
 const form = document.getElementById('contact-form');
@@ -289,13 +311,26 @@ const commands = {
     ls: (args) => {
         const targetPath = args[0] ? pathJoin(currentPath, args[0]) : currentPath;
         const entries = listEntriesAtPath(targetPath);
-        if (!entries.length) return printLine('(empty)');
+
+        if (!entries.length) {
+            // Check if the argument is a valid file
+            if (args[0]) {
+            const parentPath = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
+            const parentEntries = listEntriesAtPath(parentPath);
+            const fileName = targetPath.split('/').pop();
+            const fileEntry = parentEntries.find(e => e.name === fileName && e.type === 'file');
+            if (fileEntry) {
+                return printLine(fileEntry.name);
+            }
+            }
+            return printLine('(empty)');
+        }
 
         const dirs = entries.filter(e => e.type === 'dir').map(e => `${e.name}/`);
         const files = entries.filter(e => e.type === 'file').map(e => e.name);
 
-        printLine(dirs.join('   '), 'color-blue');
-        printLine(files.join('   '));
+        if (dirs.length) printLine(dirs.join('   '), 'color-blue');
+        if (files.length) printLine(files.join('   '));
     },
     cd: (args) => {
         if (!args[0] || args[0] === '/') {
@@ -384,12 +419,13 @@ function handleAutocomplete(value) {
             .map(e => e.name);
 
         if (matches.length === 1) {
-            if (matches[0].type === 'dir') {
+            const matchedEntry = entries.find(e => e.name === matches[0]);
+            if (matchedEntry && matchedEntry.type === 'dir') {
                 const newPath = dir ? `${dir}/${matches[0]}/` : `${matches[0]}/`;
-                input.value = `${command} ${newPath}${command === 'cd' ? '/' : ''}`;
+                input.value = `${command} ${newPath}`;
             } else {
                 const newPath = dir ? `${dir}/${matches[0]}` : `${matches[0]}`;
-                input.value = `${command} ${newPath}${command === 'cd' ? '/' : ''}`;
+                input.value = `${command} ${newPath}`;
             }
         } else if (matches.length > 1) {
             // Find common prefix
@@ -423,9 +459,12 @@ function scrollToBottom() {
 }
 
 function moveCursorToEnd() {
-    input.focus();
-    const length = input.value.length;
-    input.setSelectionRange(length, length);
+    // Ensure focus and move cursor to end after value update
+    setTimeout(() => {
+        input.focus();
+        const length = input.value.length;
+        input.setSelectionRange(length, length);
+    }, 2);
 }
 
 function pathJoin(base, target) {
