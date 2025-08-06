@@ -220,23 +220,31 @@ function listEntriesAtPath(pathStr) {
 
 // ----- Terminal UI -----
 openBtn.addEventListener('click', () => {
-    if (!terminalInitialized) {
-        modal.style.display = 'flex';
-        input.focus();
-        printLine('Type "help" for commands.');
-    } else {
-        modal.style.display = 'none';
+    const isOpening = !terminalInitialized;
+    terminalInitialized = isOpening;
+
+    modal.style.display = isOpening ? 'flex' : 'none';
+    if (isOpening) {
+        document.body.classList.add('modal-open');
         output.innerHTML = '';
+        printLine('Type "help" for commands.');
+        focusInput();
+    } else {
+        document.body.classList.remove('modal-open');
         currentPath = '/';
     }
-    terminalInitialized = !terminalInitialized;
 });
 
 closeBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-    output.innerHTML = '';
     terminalInitialized = false;
+    modal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+    output.innerHTML = '';
     currentPath = '/';
+});
+
+input.addEventListener('blur', () => {
+    if (terminalInitialized) focusInput();
 });
 
 // ----- Commands -----
@@ -299,6 +307,7 @@ const commands = {
     exit: () => {
         terminalInitialized = false;
         modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
         output.innerHTML = '';
         currentPath = '/';
     },
@@ -363,6 +372,7 @@ input.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && modal.style.display === 'flex') {
         terminalInitialized = false;
         modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
         output.innerHTML = '';
         currentPath = '/';
     } else if (e.key === 'Enter') {
@@ -405,21 +415,25 @@ input.addEventListener('keydown', (e) => {
     }
 });
 
-const inputBtns = document.getElementById('terminal-input');
+const controls = document.getElementById('terminal-controls');
 
-document.getElementById('btn-tab').addEventListener('click', () => {
-    const e = new KeyboardEvent('keydown', { key: 'Tab' });
-    inputBtns.dispatchEvent(e);
-});
+controls.addEventListener('click', (e) => {
+    const action = e.target.dataset.action;
+    if (!action) return;
 
-document.getElementById('btn-up').addEventListener('click', () => {
-    const e = new KeyboardEvent('keydown', { key: 'ArrowUp' });
-    inputBtns.dispatchEvent(e);
-});
-
-document.getElementById('btn-down').addEventListener('click', () => {
-    const e = new KeyboardEvent('keydown', { key: 'ArrowDown' });
-    inputBtns.dispatchEvent(e);
+    if (action === 'tab') { // Simulate Tab key press
+        const tabEvent = new KeyboardEvent('keydown', { key: 'Tab' });
+        input.focus();
+        input.dispatchEvent(tabEvent);
+    } else if (action === 'up') { // Simulate ArrowUp key press
+        const upEvent = new KeyboardEvent('keydown', { key: 'ArrowUp' });
+        input.focus();
+        input.dispatchEvent(upEvent);
+    } else if (action === 'down') { // Simulate ArrowDown key press
+        const downEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' });
+        input.focus();
+        input.dispatchEvent(downEvent);
+    }
 });
 
 
@@ -474,6 +488,14 @@ function printLine(text, className = '') {
 
 function scrollToBottom() {
     output.scrollTop = output.scrollHeight;
+}
+
+function focusInput() {
+    setTimeout(() => {
+        input.focus();
+        const len = input.value.length;
+        input.setSelectionRange(len, len);
+    }, 50);
 }
 
 function moveCursorToEnd() {
