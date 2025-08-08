@@ -5,12 +5,12 @@ const dns = require('dns').promises;
 // ---------------------- Mail Transport ----------------------
 // Use Zoho (or your SMTP provider) via environment variables.
 const transporter = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,                   // e.g. 'smtp.zoho.com'
-  port: Number(process.env.MAIL_PORT),           // 465 (SSL) or 587 (STARTTLS)
-  secure: process.env.MAIL_SECURE === 'true',    // true for 465, false otherwise
+  host: process.env.MAIL_HOST,
+  port: Number(process.env.MAIL_PORT),
+  secure: process.env.MAIL_SECURE === 'true',
   auth: {
-    user: process.env.MAIL_USER,                 // e.g. 'contact@elbiti.com'
-    pass: process.env.MAIL_PASS                  // password or app password
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS
   }
 });
 
