@@ -49,10 +49,159 @@ fetch('/api/projects')
         <p>${proj.description || 'No description available.'}</p>
         <a href="${proj.html_url}" target="_blank">View on GitHub</a>
       `;
+            card.dataset.name = proj.name;
+            card.dataset.desc = proj.description || '';
+            card.dataset.url = proj.html_url;
+            if (proj.stars) card.dataset.stars = proj.stars;
+            if (proj.updated) card.dataset.updated = proj.updated;
+            if (proj.lang) card.dataset.lang = proj.lang;
+
+            // click abre modal
+            card.addEventListener('click', () => openProjectModal(card));
+
             container.appendChild(card);
         });
+
+        // <-- activar hover para desktop
+        enableHoverOpenForCards();
     })
     .catch(err => console.error('Error loading projects:', err));
+
+
+// ---- Modal refs
+const overlayEl = document.getElementById('project-overlay');
+const modalEl = overlayEl.querySelector('.project-modal');
+const closeEl = overlayEl.querySelector('.project-close');
+
+const modalTitle = document.getElementById('project-modal-title');
+const modalDesc = document.getElementById('project-modal-desc');
+const modalLink = document.getElementById('project-modal-link');
+
+const rowStars = document.getElementById('meta-stars');
+const rowUpdated = document.getElementById('meta-updated');
+const rowLang = document.getElementById('meta-language');
+
+// Cerrar modal helpers
+function closeProjectModal() {
+    overlayEl.classList.remove('visible');
+    // permitimos scroll del body otra vez
+    document.body.style.overflow = '';
+}
+
+overlayEl.addEventListener('click', (e) => {
+    if (e.target === overlayEl) closeProjectModal();
+});
+closeEl.addEventListener('click', closeProjectModal);
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlayEl.classList.contains('visible')) closeProjectModal();
+});
+
+// Enable hover to open modal
+function enableHoverOpenForCards() {
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (!canHover) return;
+
+    const cards = document.querySelectorAll('.project-card');
+    const HOVER_DELAY = 500;
+    const timers = new WeakMap();
+
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            if (overlayEl.classList.contains('visible')) return;
+            const t = setTimeout(() => {
+                openProjectModal(card);
+            }, HOVER_DELAY);
+            timers.set(card, t);
+        });
+
+        card.addEventListener('mouseleave', () => {
+            const t = timers.get(card);
+            if (t) {
+                clearTimeout(t);
+                timers.delete(card);
+            }
+        });
+    });
+}
+
+// Abre con animación FLIP desde "card" a "modal"
+function openProjectModal(card) {
+    // Rellenar modal con datos
+    modalTitle.textContent = card.dataset.name || '';
+    modalDesc.textContent = card.dataset.desc || '';
+    modalLink.href = card.dataset.url || '#';
+
+    rowStars.hidden = rowUpdated.hidden = rowLang.hidden = true;
+    if (card.dataset.stars) {
+        rowStars.hidden = false;
+        rowStars.querySelector('span').textContent = card.dataset.stars;
+    }
+    if (card.dataset.updated) {
+        rowUpdated.hidden = false;
+        const d = new Date(card.dataset.updated);
+        rowUpdated.querySelector('span').textContent = d.toLocaleString();
+    }
+    if (card.dataset.lang) {
+        rowLang.hidden = false;
+        rowLang.querySelector('span').textContent = card.dataset.lang;
+    }
+
+    // Medidas de la tarjeta original
+    const first = card.getBoundingClientRect();
+
+    // Crear clon visual
+    const clone = card.cloneNode(true);
+    clone.classList.add('project-clone');
+    clone.style.top = `${first.top}px`;
+    clone.style.left = `${first.left}px`;
+    clone.style.width = `${first.width}px`;
+    clone.style.height = `${first.height}px`;
+    document.body.appendChild(clone);
+
+    // Calcular destino centrado
+    const targetW = Math.min(720, window.innerWidth * 0.92);
+    const targetH = Math.min(Math.max(first.height * 1.85, 340), window.innerHeight * 0.84);
+    const targetX = (window.innerWidth - targetW) / 2;
+    const targetY = (window.innerHeight - targetH) / 2;
+
+    const scaleX = targetW / first.width;
+    const scaleY = targetH / first.height;
+    const translateX = targetX - first.left;
+    const translateY = targetY - first.top;
+
+    // Mostrar overlay pero sin fade todavía
+    overlayEl.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+
+    // Animación clon → centro con blur y fade
+    const DURATION = 450;
+    const anim = clone.animate([
+        { transform: 'translate(0,0) scale(1,1)', opacity: 1, filter: 'blur(0px)' },
+        { offset: 0.5, opacity: 0, filter: 'blur(8px)', transform: `translate(${translateX * 0.5}px, ${translateY * 0.5}px) scale(${1 + (scaleX - 1) * 0.5}, ${1 + (scaleY - 1) * 0.5})` },
+        { transform: `translate(${translateX}px, ${translateY}px) scale(${scaleX}, ${scaleY})`, opacity: 0, filter: 'blur(8px)' }
+    ], {
+        duration: DURATION,
+        easing: 'cubic-bezier(.22,.61,.36,1)',
+        fill: 'forwards'
+    });
+
+    // A mitad: fade-in overlay + modal
+    setTimeout(() => {
+        overlayEl.classList.add('fade-in');
+        modalEl.style.opacity = '0';
+        modalEl.style.left = `${targetX}px`;
+        modalEl.style.top = `${targetY}px`;
+        modalEl.style.width = `${targetW}px`;
+        modalEl.style.height = `${targetH}px`;
+        modalEl.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, fill: 'forwards', easing: 'ease-out' });
+    }, DURATION / 2);
+
+    anim.onfinish = () => {
+        clone.remove();
+    };
+}
+
+
 
 // =======================
 // Scroll tilt effect (mobile)
@@ -482,6 +631,7 @@ function printLine(text, className = '') {
     const line = document.createElement('div');
     line.innerHTML = text;
     if (className) line.classList.add(className);
+    line.classList.add('line');
     output.appendChild(line);
     scrollToBottom();
 }

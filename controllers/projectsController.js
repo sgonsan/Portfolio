@@ -38,7 +38,10 @@ exports.getProjects = async (req, res) => {
       results.push({
         name: data.name,
         description: data.description,
-        html_url: data.html_url
+        html_url: data.html_url,
+        stars: data.stargazers_count,
+        updated: data.pushed_at,
+        lang: data.language
       });
     }
 
