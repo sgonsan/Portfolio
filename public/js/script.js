@@ -56,14 +56,14 @@ fetch('/api/projects')
             if (proj.updated) card.dataset.updated = proj.updated;
             if (proj.lang) card.dataset.lang = proj.lang;
 
-            // click abre modal
+            // click opens modal
             card.addEventListener('click', () => openProjectModal(card));
 
             container.appendChild(card);
         });
 
-        // <-- activar hover para desktop
-        enableHoverOpenForCards();
+        // <-- activate hover for desktop
+        // enableHoverOpenForCards();
     })
     .catch(err => console.error('Error loading projects:', err));
 
@@ -81,10 +81,10 @@ const rowStars = document.getElementById('meta-stars');
 const rowUpdated = document.getElementById('meta-updated');
 const rowLang = document.getElementById('meta-language');
 
-// Cerrar modal helpers
+// close modal helpers
 function closeProjectModal() {
     overlayEl.classList.remove('visible');
-    // permitimos scroll del body otra vez
+    // allow scroll in body
     document.body.style.overflow = '';
 }
 
@@ -124,9 +124,9 @@ function enableHoverOpenForCards() {
     });
 }
 
-// Abre con animación FLIP desde "card" a "modal"
+// Open with animations FLIP from "card" to "modal"
 function openProjectModal(card) {
-    // Rellenar modal con datos
+    // Fill modal with data
     modalTitle.textContent = card.dataset.name || '';
     modalDesc.textContent = card.dataset.desc || '';
     modalLink.href = card.dataset.url || '#';
@@ -146,10 +146,10 @@ function openProjectModal(card) {
         rowLang.querySelector('span').textContent = card.dataset.lang;
     }
 
-    // Medidas de la tarjeta original
+    // Original card dimensions
     const first = card.getBoundingClientRect();
 
-    // Crear clon visual
+    // Create visual clone
     const clone = card.cloneNode(true);
     clone.classList.add('project-clone');
     clone.style.top = `${first.top}px`;
@@ -158,7 +158,7 @@ function openProjectModal(card) {
     clone.style.height = `${first.height}px`;
     document.body.appendChild(clone);
 
-    // Calcular destino centrado
+    // Calculate centered destination
     const targetW = Math.min(720, window.innerWidth * 0.92);
     const targetH = Math.min(Math.max(first.height * 1.85, 340), window.innerHeight * 0.84);
     const targetX = (window.innerWidth - targetW) / 2;
@@ -169,11 +169,11 @@ function openProjectModal(card) {
     const translateX = targetX - first.left;
     const translateY = targetY - first.top;
 
-    // Mostrar overlay pero sin fade todavía
+    // Show overlay but without fade yet
     overlayEl.classList.add('visible');
     document.body.style.overflow = 'hidden';
 
-    // Animación clon → centro con blur y fade
+    // Clone animation → center with blur and fade
     const DURATION = 450;
     const anim = clone.animate([
         { transform: 'translate(0,0) scale(1,1)', opacity: 1, filter: 'blur(0px)' },
@@ -185,7 +185,7 @@ function openProjectModal(card) {
         fill: 'forwards'
     });
 
-    // A mitad: fade-in overlay + modal
+    // Halfway: fade-in overlay + modal
     setTimeout(() => {
         overlayEl.classList.add('fade-in');
         modalEl.style.opacity = '0';

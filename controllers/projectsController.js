@@ -18,7 +18,8 @@ exports.getProjects = async (req, res) => {
 
   try {
     const raw = fs.readFileSync(projectsPath, 'utf8');
-    const urls = JSON.parse(raw);
+    const repos = JSON.parse(raw);
+    const urls = repos.map(repo => "https://github.com/sgonsan/" + repo);
 
     const results = [];
     for (const url of urls) {
