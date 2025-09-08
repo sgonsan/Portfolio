@@ -1,99 +1,98 @@
-# Sergio González Sánchez – Portfolio
 
-Portfolio personal que muestra mis **habilidades, proyectos y logros profesionales**.  
-Construido con **HTML, CSS y JavaScript** para el frontend, y **Node.js + Express** para el backend.  
-Carga los proyectos de **GitHub en tiempo real** mediante la API de GitHub y permite contacto directo mediante un formulario con **Nodemailer**.
+<div align="center">
+  <img src="public/assets/icon.png" alt="Project Icon" width="120"/>
+  <h1>Portfolio Web Application</h1>
+  <p>A modern, responsive portfolio website built with Node.js and Express.</p>
+</div>
 
-## Características principales
+---
 
-- **Diseño moderno y responsive**
-  - Dark/Light mode con almacenamiento en `localStorage`.
-  - Animaciones sutiles y tilt 3D en scroll/hover.
-- **Carga dinámica de proyectos**
-  - Obtiene información de repositorios desde GitHub.
-  - Cache local en servidor para evitar rate limits.
-- **Formulario de contacto**
-  - Envío mediante Gmail usando Nodemailer.
-  - Rate limit para prevenir spam (1 mensaje por minuto).
-- **Optimizado para móvil**
-  - Efectos de inclinación y animaciones suaves para pantallas pequeñas.
+## Table of Contents
 
-## Tecnologías utilizadas
+- [About](#about)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Environment Variables](#environment-variables)
+- [License](#license)
 
-### Frontend
+---
 
-- HTML5 semántico
-- CSS3 con variables para modo claro/oscuro
-- JavaScript vanilla (sin frameworks)
+## About
 
-### Backend
+This project is a personal portfolio web application designed to showcase your projects, skills, and contact information. It is built using Node.js and Express, and serves static assets as well as dynamic project and contact data. The application is ready for deployment and can be easily customized.
 
-- Node.js con Express
-- Nodemailer para correo
-- API de GitHub para cargar proyectos
-- Express Rate Limit para protección anti-spam
+## Features
 
-## Configuración del entorno
+- Responsive and modern UI (light/dark mode, subtle animations, 3D tilt effects)
+- Project showcase with dynamic data (loads project info from GitHub or local JSON)
+- Contact form with email sending (Nodemailer)
+- Rate limiting for contact form to prevent spam
+- Statistics endpoint
+- RESTful API structure
+- Static asset serving (images, fonts, CSS, JS)
+- Mobile optimized
+- Environment variable support
 
-Este proyecto usa un archivo `.env` para variables sensibles.  
-Un ejemplo de configuración se encuentra en `.env.example`:
+## Project Structure
 
-```plaintext
-GITHUB_TOKEN=your_github_token_here
-MAIL_USER=your_email_here
-MAIL_PASS=your_app_password_here
+```text
+prod/
+├── controllers/         # Express controllers for API endpoints
+├── public/              # Static files (HTML, CSS, JS, images, fonts)
+│   ├── assets/          # Images and font files
+│   ├── css/             # Stylesheets
+│   └── js/              # Client-side JavaScript
+├── routes/              # Express route definitions
+├── .env                 # Environment variables (not committed)
+├── .env.example         # Example environment variables
+├── package.json         # Project metadata and dependencies
+├── projects.json        # Project data
+├── stats.json           # Statistics data
+├── server.js            # Main server entry point
+└── README.md            # Project documentation
 ```
 
-1. Copia `.env.example` a `.env`:
+## Installation
 
-   ```bash
-   cp .env.example .env
-   ```
+1. **Clone the repository:**
 
-2. Edita `.env` y añade tus valores reales.
+  ```bash
+  git clone https://github.com/your-username/your-repo.git
+  cd your-repo/prod
+  ```
 
-## Ejecución en local
+2. **Install dependencies:**
 
-Para ejecutar el proyecto en tu máquina local, sigue estos pasos:
+  ```bash
+  npm install
+  ```
 
-1. Clona el repositorio
+3. **Configure environment variables:**
 
-   ```bash
-   git clone https://github.com/sgonsan/portfolio.git
-   cd portfolio
-   ```
+- Copy `.env.example` to `.env` and update the values as needed.
 
-2. Instala las dependencias
+## Usage
 
-   ```bash
-   npm install
-   ```
+- **Start the server:**
 
-3. Inicia el servidor
+  ```bash
+  npm start
+  ```
 
-   ```bash
-   npm start
-   ```
+- The application will be available at `http://localhost:PORT` (default port is set in `.env`).
 
-El proyecto estará disponible en `http://localhost:3000`.
+## Environment Variables
 
-## Estructura del proyecto
+The application uses environment variables for configuration. See `.env.example` for all available options. Typical variables include:
 
-```plaintext
-portfolio/
-├── public/ # Archivos frontend (HTML, CSS, JS, imágenes)
-├── projects.json # Lista de repositorios de GitHub a mostrar
-├── server.js # Servidor Express
-├── .env.example # Plantilla de variables de entorno
-├── package.json # Dependencias y scripts
-└── package-lock.json # Lockfile de dependencias
-```
+- `PORT` - The port number to run the server on
+- `NODE_ENV` - The environment (development/production)
+- `GITHUB_TOKEN` - (Optional) GitHub API token for project loading
+- `MAIL_USER` - Email address for contact form
+- `MAIL_PASS` - App password for email sending
 
-## Licencia
+## License
 
-Este proyecto es de uso personal. Si deseas usarlo como base, reemplaza las imágenes y credenciales con las tuyas propias.
-
-## Autor
-
-**Sergio González Sánchez**  
-[https://www.elbiti.com](https://www.elbiti.com)
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
