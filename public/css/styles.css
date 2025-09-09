@@ -445,7 +445,7 @@ section {
   text-decoration: underline;
 }
 
-/* ===== FLIP: tarjeta clon animada ===== */
+/* ===== FLIP: animated card clone ===== */
 .project-clone {
   position: fixed;
   margin: 0;
@@ -458,7 +458,7 @@ section {
   will-change: transform, opacity, filter;
 }
 
-/* Móvil: modal centrado y sin tocar bordes */
+/* Phone: modal centered and not touching edges */
 @media (max-width: 768px) {
   .project-modal {
     width: 94vw;

@@ -57,7 +57,7 @@ fetch('/api/projects')
             if (proj.lang) card.dataset.lang = proj.lang;
 
             // click opens modal
-            card.addEventListener('click', () => openProjectModal(card));
+            // card.addEventListener('click', () => openProjectModal(card));
 
             container.appendChild(card);
         });
