@@ -37,10 +37,16 @@ fetch('/api/zen')
 // =======================
 // Projects section
 // =======================
+const container = document.getElementById('projects-grid');
+showProjectPlaceholders(6);
+
 fetch('/api/projects')
     .then(res => res.json())
     .then(projects => {
-        const container = document.getElementById('projects-grid');
+
+        container.removeAttribute('aria-busy');
+        container.innerHTML = "";
+
         projects.forEach(proj => {
             const card = document.createElement('div');
             card.className = 'project-card';
@@ -52,20 +58,47 @@ fetch('/api/projects')
             card.dataset.name = proj.name;
             card.dataset.desc = proj.description || '';
             card.dataset.url = proj.html_url;
-            if (proj.stars) card.dataset.stars = proj.stars;
-            if (proj.updated) card.dataset.updated = proj.updated;
-            if (proj.lang) card.dataset.lang = proj.lang;
 
-            // click opens modal
+            // Si ya usas openProjectModal / hover:
             // card.addEventListener('click', () => openProjectModal(card));
 
             container.appendChild(card);
         });
 
-        // <-- activate hover for desktop
-        // enableHoverOpenForCards();
+        // Si tienes esta función para hover:
+        if (typeof enableHoverOpenForCards === 'function') {
+            // enableHoverOpenForCards();
+        }
     })
-    .catch(err => console.error('Error loading projects:', err));
+    .catch(err => {
+        console.error('Error loading projects:', err);
+        container.removeAttribute('aria-busy');
+        container.innerHTML = `
+      <div class="project-card">
+        <h3>Couldn’t load projects</h3>
+        <p>Please try again later.</p>
+      </div>
+    `;
+    });
+
+
+function showProjectPlaceholders(count = 6) {
+    container.innerHTML = "";
+    container.setAttribute('aria-busy', 'true');
+    for (let i = 0; i < count; i++) {
+        console.log('Adding skeleton', i);
+        const skel = document.createElement('div');
+        skel.className = 'project-card skeleton';
+        skel.innerHTML = `
+      <div class="skel-title"></div>
+      <div class="skel-text"></div>
+      <div class="skel-text"></div>
+      <div class="skel-text short"></div>
+      <div class="skel-link"></div>
+    `;
+        container.appendChild(skel);
+    }
+}
 
 
 // ---- Modal refs
@@ -249,8 +282,6 @@ window.addEventListener('scroll', handleScrollTilt);
 // =======================
 // Mouse move effect on project cards
 // =======================
-const container = document.getElementById('projects-grid');
-
 container.addEventListener('mousemove', (e) => {
     const card = e.target.closest('.project-card');
     if (!card) return;

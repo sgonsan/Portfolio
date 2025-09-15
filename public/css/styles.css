@@ -9,6 +9,22 @@
   --accent-bg: #c987cf;
   --accent-bg-secondary: #e193e8;
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --skeleton-base: #e8ebef;
+  --skeleton-shine: #f4f6f9;
+}
+
+[data-theme="dark"] {
+  --bg-color: #121418;
+  --section-bg: #1e1f24;
+  --text-color: #e6e6e6;
+  --card-bg: #1e1f24;
+  --accent-color: #ad58df;
+  --accent-secondary: #d091c2;
+  --accent-bg: #3f2a4c;
+  --accent-bg-secondary: #5c396e;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --skeleton-base: #1f2228;
+  --skeleton-shine: #2a2f36;
 }
 
 /* success */
@@ -34,19 +50,6 @@
 /* accent */
 .color-purple {
   color: #c586ff;
-}
-
-
-[data-theme="dark"] {
-  --bg-color: #121418;
-  --section-bg: #1e1f24;
-  --text-color: #e6e6e6;
-  --card-bg: #1e1f24;
-  --accent-color: #ad58df;
-  --accent-secondary: #d091c2;
-  --accent-bg: #3f2a4c;
-  --accent-bg-secondary: #5c396e;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 @font-face {
@@ -443,6 +446,60 @@ section {
 
 #project-modal-link:hover {
   text-decoration: underline;
+}
+
+.project-card.skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card.skeleton .skel-title,
+.project-card.skeleton .skel-text,
+.project-card.skeleton .skel-link {
+  background: var(--skeleton-base);
+  border-radius: 8px;
+  margin-top: .6rem;
+}
+
+.project-card.skeleton .skel-title {
+  height: 18px;
+  width: 60%;
+}
+
+.project-card.skeleton .skel-text {
+  height: 12px;
+  width: 100%;
+  opacity: .9;
+}
+
+.project-card.skeleton .skel-text.short {
+  width: 75%;
+}
+
+.project-card.skeleton .skel-link {
+  height: 14px;
+  width: 40%;
+  margin-top: .8rem;
+}
+
+/* Shimmer effect */
+.project-card.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      var(--skeleton-shine) 50%,
+      transparent 100%);
+  transform: translateX(-100%);
+  animation: skel-shimmer 1.2s infinite;
+  opacity: .6;
+}
+
+@keyframes skel-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* ===== FLIP: animated card clone ===== */
