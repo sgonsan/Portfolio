@@ -43,29 +43,51 @@ showProjectPlaceholders(6);
 fetch('/api/projects')
     .then(res => res.json())
     .then(projects => {
-
         container.removeAttribute('aria-busy');
         container.innerHTML = "";
 
-        projects.forEach(proj => {
+        projects.forEach((proj, idx) => {
             const card = document.createElement('div');
             card.className = 'project-card';
-            card.innerHTML = `
-        <h3>${proj.name}</h3>
-        <p>${proj.description || 'No description available.'}</p>
-        <a href="${proj.html_url}" target="_blank">View on GitHub</a>
-      `;
-            card.dataset.name = proj.name;
-            card.dataset.desc = proj.description || '';
+
+            // build elements inside card
+            const title = document.createElement('h3');
+            const desc = document.createElement('p');
+            const link = document.createElement('a');
+
+            // save data
+            const titleText = proj.name || '';
+            const descText = proj.description || 'No description available.';
+
+            // visible link text
+            link.href = proj.html_url;
+            link.target = '_blank';
+            link.textContent = 'View on GitHub';
+
+            // Append elements to card
+            card.appendChild(title);
+            card.appendChild(desc);
+            card.appendChild(link);
+
+            // Dataset (for modal or other uses)
+            card.dataset.name = titleText;
+            card.dataset.desc = descText;
             card.dataset.url = proj.html_url;
 
-            // Si ya usas openProjectModal / hover:
+            // If available:
             // card.addEventListener('click', () => openProjectModal(card));
 
             container.appendChild(card);
+
+            // typewriter effect
+            const baseDelay = idx * 150;           // stagger cards
+            setTimeout(() => typeWriter(title, titleText, 16), baseDelay);
+            setTimeout(() => typeWriter(desc, descText, 8), baseDelay + 350);
+            // if you want to animate the link too, uncomment:
+            // setTimeout(() => typeWriter(link, 'View on GitHub', 25), baseDelay + 850);
         });
 
-        // Si tienes esta función para hover:
+        // Enable hover to open modal (if function exists):
         if (typeof enableHoverOpenForCards === 'function') {
             // enableHoverOpenForCards();
         }
@@ -99,6 +121,18 @@ function showProjectPlaceholders(count = 6) {
     }
 }
 
+function typeWriter(el, text, delay = 30) {
+    el.textContent = ""; // clear existing content
+    let i = 0;
+    function write() {
+        if (i < text.length) {
+            el.textContent += text.charAt(i);
+            i++;
+            setTimeout(write, delay);
+        }
+    }
+    write();
+}
 
 // ---- Modal refs
 const overlayEl = document.getElementById('project-overlay');
