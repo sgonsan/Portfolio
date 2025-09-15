@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="public/assets/icon.png" alt="Project Icon" width="120"/>
+  <img src="public/assets/icon.svg" alt="Project Icon" width="120"/>
   <h1>Portfolio Web Application</h1>
   <p>A modern, responsive portfolio website built with Node.js and Express.</p>
 </div>

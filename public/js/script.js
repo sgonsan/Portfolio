@@ -86,7 +86,6 @@ function showProjectPlaceholders(count = 6) {
     container.innerHTML = "";
     container.setAttribute('aria-busy', 'true');
     for (let i = 0; i < count; i++) {
-        console.log('Adding skeleton', i);
         const skel = document.createElement('div');
         skel.className = 'project-card skeleton';
         skel.innerHTML = `
