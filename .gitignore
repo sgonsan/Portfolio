@@ -10,6 +10,11 @@ Thumbs.db
 .vscode/
 .idea/
 
+# DB
+*.db
+*.sqlite
+
+
 # Cachés / builds
 dist/
 build/

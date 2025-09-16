@@ -8,6 +8,7 @@ const projectsRoutes = require('./routes/projects');
 const contactRoutes = require('./routes/contact');
 const statsRoutes = require('./routes/stats');
 const fsRoutes = require('./routes/fs');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 const PORT = process.env.NODE_ENV === 'production' ? 8080 : 3000;
@@ -22,6 +23,7 @@ app.use('/api/projects', projectsRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/fs', fsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Start server
 app.listen(PORT, () => {

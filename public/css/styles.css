@@ -123,10 +123,15 @@ p {
 }
 
 #theme-toggle {
-  background: none;
+  background: var(--skeleton-shine);
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+#theme-toggle:hover {
+  background: var(--skeleton-base);
 }
 
 /* Sections layout */
@@ -700,15 +705,15 @@ button:hover {
 
 /* Close button */
 #close-terminal {
-  background: var(--accent-color);
+  background: rgba(0, 0, 0, 0);
+  height: 30px;
+  width: 30px;
+  padding: 0;
   border: none;
   color: #fff;
   font-size: 1.2rem;
   cursor: pointer;
-}
-
-#close-terminal:hover {
-  background: var(--accent-secondary);
+  box-shadow: none;
 }
 
 /* Terminal output */
