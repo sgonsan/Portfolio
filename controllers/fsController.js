@@ -45,7 +45,7 @@ exports.getFileSystem = (req, res) => {
   try {
     cachedTree = buildTree(PUBLIC_PATH);
     lastUpdate = now;
-    console.log('File system tree rebuilt');
+    console.log(`File system tree rebuilt (${Date.now() - now} ms)`);
     res.json(cachedTree);
   } catch (err) {
     console.error('Error building filesystem tree:', err);

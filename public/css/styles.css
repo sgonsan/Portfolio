@@ -554,7 +554,139 @@ section {
   }
 }
 
-/* Achievements */
+/* =========================== */
+/* Timeline                    */
+/* =========================== */
+
+.timeline {
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.timeline-list {
+  position: relative;
+  margin: 1rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.timeline-list::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  /* alineado con los dots */
+  top: 0.4rem;
+  bottom: 0.4rem;
+  width: 2px;
+  background: linear-gradient(to bottom,
+      var(--accent-bg-secondary),
+      var(--accent-bg));
+  opacity: .35;
+}
+
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: .75rem;
+  padding: .7rem 0 .7rem .2rem;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .45s ease, transform .45s ease;
+}
+
+.timeline-item.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-top: .35rem;
+  background: var(--accent-color);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent-color) 25%, transparent);
+}
+
+.timeline-content {
+  background: var(--card-bg);
+  border: 1px solid rgba(0, 0, 0, .06);
+  border-radius: 10px;
+  padding: .8rem .9rem;
+  box-shadow: var(--shadow);
+}
+
+.timeline-date {
+  font-family: Poppins, sans-serif;
+  font-size: .9rem;
+  opacity: .8;
+  margin-bottom: .2rem;
+}
+
+.timeline-content h3 {
+  color: var(--accent-color);
+  margin: .15rem 0 .35rem;
+  font-size: 1.05rem;
+}
+
+.timeline-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  margin-top: .4rem;
+}
+
+.timeline-tag {
+  font-size: .78rem;
+  padding: .15rem .45rem;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  color: #fff;
+}
+
+/* Skeleton placeholders */
+.skeleton {
+  position: relative;
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, .08) 25%,
+      rgba(255, 255, 255, .18) 37%,
+      rgba(255, 255, 255, .08) 63%);
+  border-radius: 6px;
+  animation: skeleton-loading 1.2s infinite linear;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 0 0;
+    background-size: 400% 100%;
+  }
+
+  100% {
+    background-position: 100% 0;
+    background-size: 400% 100%;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .timeline {
+    gap: .75rem;
+    margin-top: 1rem;
+  }
+
+  .timeline-list {
+    padding-left: .75rem;
+  }
+
+  .timeline-list::before {
+    left: 10px;
+  }
+}
+
+/* =========================== */
+/* Achievements                */
+/* =========================== */
+
 .achievement-list {
   list-style: disc;
   padding-left: 1.5rem;
@@ -818,6 +950,22 @@ button:hover {
     overflow: hidden
   }
 }
+
+/* Snake screen inside terminal-output */
+#snake-screen {
+  font-family: 'IntelOneMono', monospace;
+  white-space: pre;
+  color: var(--text-color);
+  user-select: none;
+  line-height: .63;
+}
+
+.snake-hud {
+  margin-bottom: .25rem;
+  opacity: .8;
+  font-size: 0.85rem;
+}
+
 
 /* Responsive design */
 @media (min-width: 768px) {

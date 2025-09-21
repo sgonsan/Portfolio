@@ -1,12 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-const projectsPath = path.join(__dirname, '../projects.json');
+const projectsPath = path.join(__dirname, '../json/projects.json');
 
 let projectsCache = { data: null, timestamp: 0 };
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
 exports.getProjects = async (req, res) => {
   const now = Date.now();
@@ -21,8 +20,7 @@ exports.getProjects = async (req, res) => {
     const repos = JSON.parse(raw);
     const urls = repos.map(repo => "https://github.com/sgonsan/" + repo);
 
-    const results = [];
-    for (const url of urls) {
+    const fetchRepoData = async (url) => {
       const repoPath = new URL(url).pathname.slice(1);
       const apiUrl = `https://api.github.com/repos/${repoPath}`;
 
@@ -36,19 +34,22 @@ exports.getProjects = async (req, res) => {
       if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
       const data = await response.json();
 
-      results.push({
+      return {
         name: data.name,
         description: data.description,
         html_url: data.html_url,
         stars: data.stargazers_count,
         updated: data.pushed_at,
         lang: data.language
-      });
-    }
+      };
+    };
+
+    const fetchPromises = urls.map(fetchRepoData);
+    const results = await Promise.all(fetchPromises);
 
     projectsCache = { data: results, timestamp: now };
 
-    console.log('Fetched projects from GitHub API');
+    console.log(`Fetched projects from GitHub API (${Date.now() - now} ms)`);
     res.json(results);
   } catch (err) {
     console.error('Error fetching projects:', err);

@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon --ignore 'stats.json' server.js"
+    "dev": "nodemon --ignore '*.json' server.js"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^1.48.4",

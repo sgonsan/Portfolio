@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 let zenCache = { text: null, timestamp: 0 };
@@ -25,7 +24,7 @@ exports.getZenQuote = async (req, res) => {
 
     zenCache = { text, timestamp: now };
 
-    console.log('Fetched new Zen quote:', text);
+    console.log(`Fetched new Zen quote from GitHub API (${Date.now() - now} ms)`);
     res.json({ quote: text });
   } catch (err) {
     console.error('Error fetching Zen quote:', err);

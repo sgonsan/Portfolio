@@ -1,0 +1,62 @@
+[
+  {
+    "date": "2025-02",
+    "title": "Maze Solver with Deep Q-Networks",
+    "description": "Developed a reinforcement learning agent to solve ASCII mazes directly in the terminal using Python.",
+    "tags": [
+      "Python",
+      "Reinforcement Learning",
+      "DQN"
+    ]
+  },
+  {
+    "date": "2025-01",
+    "title": "Chat 1 – Multiclient Chat with ncurses",
+    "description": "Built a real-time C++ chat system with sockets and ncurses, supporting multiple clients, nicknames, and formatted UI.",
+    "tags": [
+      "C++",
+      "Sockets",
+      "ncurses"
+    ]
+  },
+  {
+    "date": "2024-12",
+    "title": "2048 AI Agent",
+    "description": "Implemented a neural network capable of playing 2048 autonomously in the terminal.",
+    "tags": [
+      "C++",
+      "AI",
+      "Game Development"
+    ]
+  },
+  {
+    "date": "2024-10",
+    "title": "Home Assistant & Proxmox Cluster",
+    "description": "Deployed a self-hosted smart home environment with containers, Jellyfin, AdGuard, and integrated automation.",
+    "tags": [
+      "Proxmox",
+      "Home Assistant",
+      "Linux"
+    ]
+  },
+  {
+    "date": "2024-06",
+    "title": "Fastgrep CLI Tool",
+    "description": "Created a high-performance grep-like command-line tool in C++ with multithreading and custom chunk parsing.",
+    "tags": [
+      "C++",
+      "CLI",
+      "Multithreading"
+    ]
+  },
+  {
+    "date": "2023-12",
+    "title": "Wake-on-LAN Manager",
+    "description": "Designed a C++ tool to manage and wake remote PCs via network packets, integrated into server workflows.",
+    "tags": [
+      "C++",
+      "Networking",
+      "Systems"
+    ]
+  }
+]
