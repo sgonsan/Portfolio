@@ -573,7 +573,6 @@ section {
   content: "";
   position: absolute;
   left: 14px;
-  /* alineado con los dots */
   top: 0.4rem;
   bottom: 0.4rem;
   width: 2px;

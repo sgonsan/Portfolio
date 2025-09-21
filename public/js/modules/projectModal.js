@@ -136,6 +136,6 @@ export function initProjectModal() {
     };
   }
 
-  // Habilitar hover para abrir modal si se desea
+  // Enable hover to open modal (if function exists):
   // enableHoverOpenForCards();
 }
