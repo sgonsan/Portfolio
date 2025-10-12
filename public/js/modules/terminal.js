@@ -196,8 +196,7 @@ export function initTerminal() {
   let history = [];
   let historyIndex = -1;
 
-  // ----- Input handling -----
-  input.addEventListener('keydown', (e) => {
+  function terminalKeyHandler(e) {
     if (e.key === 'Escape' && modal.style.display === 'flex') {
       terminalInitialized = false;
       modal.style.display = 'none';
@@ -242,7 +241,10 @@ export function initTerminal() {
       }
       moveCursorToEnd();
     }
-  });
+  }
+
+  // ----- Input handling -----
+  input.addEventListener('keydown', terminalKeyHandler);
 
   const controls = document.getElementById('terminal-controls');
 
@@ -390,10 +392,22 @@ export function initTerminal() {
     screen.id = 'snake-screen';
     output.appendChild(screen);
 
-    // Change controls for mobile
+    // Show Top 5 before starting (no command needed)
+    // (async () => {
+    //   printLine('<br>Fetching leaderboard…');
+    //   const top5 = await fetchLeaderboard(5);
+    //   printLeaderboard(top5, 'Top 5');
+    //   const best = await fetchHighScore();
+    //   if (best) {
+    //     hud.textContent = `Snake — score: 0 — best: ${best.score} (${best.player}) — arrows/WASD to move, Q to quit`;
+    //   }
+    //   scrollToBottom();
+    // })();
+
+    // Mobile controls
     setSnakeControls(true);
 
-    // Set dimensions
+    // Square map
     const innerWidth = 28;
     const innerHeight = 28;
 
@@ -433,19 +447,60 @@ export function initTerminal() {
     clearInterval(snakeGame.timer);
     window.removeEventListener('keydown', handleSnakeKey);
 
-    snakeGame.screen.textContent += `\n\n${message}. Press any key to return…`;
+    const finalScore = snakeGame.score;
+    snakeGame.screen.textContent += `\n\n${message}. Final score: ${finalScore}`;
 
-    const handler = () => {
-      window.removeEventListener('keydown', handler);
-      output.innerHTML = '';
-      printLine(`Game over. Score: ${snakeGame.score}`);
-      input.style.display = '';
+    // Ask for name to save score
+    const ask = document.createElement('div');
+    ask.className = 'line';
+    ask.innerHTML = `<br>Enter your name to save the score (max 6 symbols):`;
+    output.appendChild(ask);
+
+    // Reactivate input to get name (max 6 symbols)
+    input.removeEventListener('keydown', terminalKeyHandler);
+
+    input.style.display = '';
+    input.value = '';
+    input.focus();
+
+    const oneShotHandler = async (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      document.removeEventListener('keydown', oneShotHandler);
+
+      const name = input.value.trim();
+      input.value = '';
+
+      if (name) {
+        localStorage.setItem('playerName', name);
+        printLine(`Saving score for "${name}"...`);
+        const ok = await saveScore(name, finalScore);
+        if (ok) {
+          printLine('Score saved!');
+        } else {
+          printLine('Could not save score.');
+        }
+      } else {
+        printLine('Skipped saving score.');
+      }
+
+      // Show updated Top 10
+      const top10 = await fetchLeaderboard(10);
+      printLine('<br>');
+      printLeaderboard(top10, 'Top 10 (updated)');
+
+      // Clean UI
+      output.appendChild(document.createElement('br'));
+      printLine(`Game over. Score: ${finalScore}`);
       setSnakeControls(false);
       snakeGame = null;
+      input.addEventListener('keydown', terminalKeyHandler);
       input.focus();
     };
-    window.addEventListener('keydown', handler, { once: true });
+
+    document.addEventListener('keydown', oneShotHandler);
   }
+
 
   function setSnakeControls(active) {
     const controls = document.getElementById('terminal-controls');
@@ -580,9 +635,54 @@ export function initTerminal() {
     }
     out += horizontal;
 
-    snakeGame.hud.textContent = `Snake — score: ${snakeGame.score} — arrows/WASD to move, Q to quit`;
+    snakeGame.hud.textContent = `Snake — score: ${snakeGame.score}` + (snakeGame.best ? ` — best: ${snakeGame.best.score} (${snakeGame.best.player})` : '') + ` — arrows/WASD to move, Q to quit`;
+
     snakeGame.screen.textContent = out;
 
     scrollToBottom();
   }
+
+  // --- Scores helpers (no new command needed) ---
+  async function fetchLeaderboard(limit = 10) {
+    try {
+      const res = await fetch(`/api/scores?limit=${limit}`);
+      if (!res.ok) throw new Error('Bad response');
+      const data = await res.json();
+      return Array.isArray(data.items) ? data.items : [];
+    } catch {
+      return [];
+    }
+  }
+
+  async function fetchHighScore() {
+    const items = await fetchLeaderboard(1);
+    return items[0] || null; // { player, score, created_at } | null
+  }
+
+  function printLeaderboard(items, title = 'Leaderboard') {
+    printLine(`<br><span class="color-blue">${title}</span>`);
+    if (!items.length) {
+      printLine('(no scores yet)');
+      return;
+    }
+    items.forEach((r, i) => {
+      const rank = String(i + 1).padStart(2, ' ');
+      printLine(`${rank}. ${r.player} — ${r.score}`);
+    });
+  }
+
+  async function saveScore(player, score) {
+    try {
+      const res = await fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player, score })
+      });
+      const data = await res.json().catch(() => ({}));
+      return res.ok && data.ok;
+    } catch {
+      return false;
+    }
+  }
+
 }

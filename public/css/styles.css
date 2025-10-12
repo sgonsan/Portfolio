@@ -142,7 +142,6 @@ section {
   margin: 1rem 2rem;
   border-radius: 12px;
   overflow: hidden;
-
   box-shadow: var(--shadow);
 }
 
@@ -185,7 +184,6 @@ section {
 /* ========================= */
 /* Skills grid & skill cards */
 /* ========================= */
-
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -204,15 +202,12 @@ section {
   font-weight: bold;
   overflow: hidden;
   cursor: default;
-
   /* 3D tilt base config */
   transform-style: preserve-3d;
   transform-origin: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-
   /* Base shadow */
   box-shadow: var(--shadow);
-
   /* Initial fade-in animation */
   opacity: 0;
   animation: fadeInUp 0.6s ease forwards;
@@ -296,13 +291,11 @@ section {
 /* =========================== */
 /* Projects grid & project cards */
 /* =========================== */
-
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1rem;
   margin-top: 1rem;
-
   /* Perspective for 3D tilt */
   perspective: 1000px;
 }
@@ -492,10 +485,7 @@ section {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg,
-      transparent 0%,
-      var(--skeleton-shine) 50%,
-      transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, var(--skeleton-shine) 50%, transparent 100%);
   transform: translateX(-100%);
   animation: skel-shimmer 1.2s infinite;
   opacity: .6;
@@ -532,7 +522,6 @@ section {
 /* =========================== */
 /* Keyframes for animations */
 /* =========================== */
-
 @keyframes glowMove {
   0% {
     background-position: 0% 50%;
@@ -555,9 +544,8 @@ section {
 }
 
 /* =========================== */
-/* Timeline                    */
+/* Timeline */
 /* =========================== */
-
 .timeline {
   gap: 1rem;
   margin-top: 1rem;
@@ -576,9 +564,7 @@ section {
   top: 0.4rem;
   bottom: 0.4rem;
   width: 2px;
-  background: linear-gradient(to bottom,
-      var(--accent-bg-secondary),
-      var(--accent-bg));
+  background: linear-gradient(to bottom, var(--accent-bg-secondary), var(--accent-bg));
   opacity: .35;
 }
 
@@ -646,10 +632,7 @@ section {
 /* Skeleton placeholders */
 .skeleton {
   position: relative;
-  background: linear-gradient(90deg,
-      rgba(255, 255, 255, .08) 25%,
-      rgba(255, 255, 255, .18) 37%,
-      rgba(255, 255, 255, .08) 63%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, .08) 25%, rgba(255, 255, 255, .18) 37%, rgba(255, 255, 255, .08) 63%);
   border-radius: 6px;
   animation: skeleton-loading 1.2s infinite linear;
 }
@@ -683,9 +666,8 @@ section {
 }
 
 /* =========================== */
-/* Achievements                */
+/* Achievements */
 /* =========================== */
-
 .achievement-list {
   list-style: disc;
   padding-left: 1.5rem;
@@ -964,7 +946,6 @@ button:hover {
   opacity: .8;
   font-size: 0.85rem;
 }
-
 
 /* Responsive design */
 @media (min-width: 768px) {
