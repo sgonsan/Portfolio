@@ -33,8 +33,13 @@
   <link rel="icon" href="assets/icon.png" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-icon.png" type="image/png">
 
-  <!-- Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css">
+  <!-- Stylesheets: base first, sections deferred -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="preload" as="style" href="css/sections.css" onload="this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="css/sections.css"></noscript>
+
+  <!-- Script -->
+  <script src="js/script.js" type="module"></script>
 </head>
 
 
@@ -178,9 +183,6 @@
       </div>
     </div>
   </div>
-
-
-  <script src="js/script.js" type="module"></script>
 </body>
 
 </html>

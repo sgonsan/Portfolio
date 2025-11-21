@@ -1,13 +1,19 @@
 // =======================
 // Zen quote
 // =======================
+import { fetchSiteData } from './siteData.js';
+
 export function initZenQuote() {
-  fetch('/api/zen')
-    .then(res => res.json())
+  fetchSiteData()
     .then(data => {
+      const quote = data?.zen?.quote;
+      if (!quote) throw new Error('Missing zen quote');
+
       const zenElement = document.getElementById('zen-quote');
-      zenElement.textContent = `"${data.quote}"`;
+      zenElement.textContent = `"${quote}"`;
       zenElement.classList.add('visible');
     })
-    .catch(err => console.error('Error loading zen quote:', err));
+    .catch(err => {
+      console.error('Error loading zen quote:', err);
+    });
 }

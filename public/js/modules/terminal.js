@@ -14,17 +14,29 @@ export function initTerminal() {
   let terminalInitialized = false;
   let currentPath = '/';
   let fsTree = null; // Cache for filesystem tree
+  let fsLoadPromise = null; // Track if a load is in progress
 
-  // ----- Load filesystem once -----
+  // ----- Load filesystem (on demand) -----
   async function loadFileSystem() {
-    try {
-      const res = await fetch('/api/fs');
-      fsTree = await res.json();
-    } catch (err) {
-      console.error('Failed to load filesystem:', err);
-    }
+    if (fsLoadPromise) return fsLoadPromise;
+    fsLoadPromise = (async () => {
+      try {
+        const res = await fetch('/api/fs');
+        fsTree = await res.json();
+      } catch (err) {
+        console.error('Failed to load filesystem:', err);
+      }
+    })();
+    return fsLoadPromise;
   }
-  loadFileSystem();
+
+  function ensureFileSystemLoaded() {
+    if (!fsTree) {
+      loadFileSystem();
+      return false;
+    }
+    return true;
+  }
 
   // ----- Helpers for FS navigation -----
   function getNodeAtPath(pathStr) {
@@ -51,6 +63,7 @@ export function initTerminal() {
 
     modal.style.display = isOpening ? 'flex' : 'none';
     if (isOpening) {
+      loadFileSystem(); // warm cache when terminal opens
       document.body.classList.add('modal-open');
       output.innerHTML = '';
       printLine('Type "help" for commands.');
@@ -144,6 +157,9 @@ export function initTerminal() {
       printLine(currentPath);
     },
     ls: (args) => {
+      if (!ensureFileSystemLoaded()) {
+        return printLine('Loading file system, please try again...');
+      }
       const targetPath = args[0] ? pathJoin(currentPath, args[0]) : currentPath;
       const entries = listEntriesAtPath(targetPath);
 
@@ -168,6 +184,9 @@ export function initTerminal() {
       if (files.length) printLine(files.join('   '));
     },
     cd: (args) => {
+      if (!ensureFileSystemLoaded()) {
+        return printLine('Loading file system, please try again...');
+      }
       if (!args[0] || args[0] === '/') {
         currentPath = '/';
         return;

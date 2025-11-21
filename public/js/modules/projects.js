@@ -1,7 +1,6 @@
 // =======================
 // Projects section
 // =======================
-import { typeWriter } from './utils.js';
 
 export function initProjectsSection() {
   const container = document.getElementById('projects-grid');
@@ -46,12 +45,9 @@ export function initProjectsSection() {
 
         container.appendChild(card);
 
-        // typewriter effect
-        const baseDelay = idx * 150;           // stagger cards
-        setTimeout(() => typeWriter(title, titleText, 16), baseDelay);
-        setTimeout(() => typeWriter(desc, descText, 8), baseDelay + 350);
-        // if you want to animate the link too, uncomment:
-        // setTimeout(() => typeWriter(link, 'View on GitHub', 25), baseDelay + 850);
+        // Fill content without typewriter effect
+        title.textContent = titleText;
+        desc.textContent = descText;
       });
 
       // Enable hover to open modal (if function exists):

@@ -11,6 +11,7 @@ const statsRoutes = require('./routes/stats');
 const fsRoutes = require('./routes/fs');
 const adminRoutes = require('./routes/admin');
 const scoresRoutes = require('./routes/scores');
+const dataRoutes = require('./routes/data');
 
 const app = express();
 const PORT = process.env.NODE_ENV === 'production' ? 8080 : 3000;
@@ -28,6 +29,7 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/fs', fsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/scores', scoresRoutes);
+app.use('/api/data', dataRoutes);
 
 // Start server
 app.listen(PORT, () => {

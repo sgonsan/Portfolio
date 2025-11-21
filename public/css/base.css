@@ -1,0 +1,181 @@
+/* Theme variables */
+:root {
+  --bg-color: #edeff1;
+  --section-bg: #f3f5f8;
+  --text-color: #1a1a1a;
+  --card-bg: #ffffff;
+  --accent-color: #8056a5;
+  --accent-secondary: #c067c4;
+  --accent-bg: #c987cf;
+  --accent-bg-secondary: #e193e8;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --skeleton-base: #e8ebef;
+  --skeleton-shine: #f4f6f9;
+}
+
+[data-theme="dark"] {
+  --bg-color: #121418;
+  --section-bg: #1e1f24;
+  --text-color: #e6e6e6;
+  --card-bg: #1e1f24;
+  --accent-color: #ad58df;
+  --accent-secondary: #d091c2;
+  --accent-bg: #3f2a4c;
+  --accent-bg-secondary: #5c396e;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --skeleton-base: #1f2228;
+  --skeleton-shine: #2a2f36;
+}
+
+/* Utility palette */
+.color-green { color: #00ff7f; }
+.color-blue { color: #57a6ff; }
+.color-red { color: #ff5f5f; }
+.color-yellow { color: #ffd95f; }
+.color-purple { color: #c586ff; }
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/Poppins/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Bitcount';
+  src: url('../assets/fonts/Bitcount/Bitcount-VariableFont_CRSV,ELSH,ELXP,slnt,wght.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'IntelOneMono';
+  src: url('../assets/fonts/Intel_One_Mono/IntelOneMono-VariableFont_wght.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Reset & base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+h1 {
+  font-family: Bitcount, sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--accent-color);
+}
+
+h2 {
+  font-family: Bitcount, sans-serif;
+}
+
+p {
+  font-family: Poppins, sans-serif;
+}
+
+/* Layout */
+section {
+  max-width: 1000px;
+  background: var(--section-bg);
+  padding: 1rem;
+  margin: 1rem 2rem;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--accent-color);
+}
+
+#theme-toggle {
+  background: var(--skeleton-shine);
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+#theme-toggle:hover {
+  background: var(--skeleton-base);
+}
+
+/* Hero / About */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  text-align: center;
+  gap: 1rem;
+}
+
+.hero-img {
+  border-radius: 50%;
+  width: 150px;
+  border: 3px solid var(--accent-color);
+  box-shadow: var(--shadow);
+}
+
+.hero-text h2 {
+  font-size: 2rem;
+  color: var(--accent-secondary);
+}
+
+.zen-quote {
+  margin-top: 0.5rem;
+  font-family: Poppins, sans-serif;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--accent-secondary);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.zen-quote.visible {
+  opacity: 1;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .hero-text {
+    max-width: 600px;
+  }
+}
+
+@media (min-width: 1064px) {
+  section {
+    margin: 2rem auto;
+  }
+}

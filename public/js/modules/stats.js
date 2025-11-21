@@ -1,12 +1,17 @@
 // =======================
 // Stats footer
 // =======================
+import { fetchSiteData } from './siteData.js';
+
 export function initStatsFooter() {
-  fetch('/api/stats')
-    .then(res => res.json())
+  fetchSiteData()
     .then(data => {
       const stats = document.getElementById('site-stats');
-      stats.textContent = `Visits: ${data.visits} | Last update: ${data.lastCommit}`;
+      const visits = data?.stats?.visits ?? '—';
+      const lastCommit = data?.stats?.lastCommit ?? '—';
+      stats.textContent = `Visits: ${visits} | Last update: ${lastCommit}`;
     })
-    .catch(err => console.error('Error loading stats:', err));
+    .catch(err => {
+      console.error('Error loading stats:', err);
+    });
 }
