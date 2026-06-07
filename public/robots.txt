@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/admin
+
+Sitemap: https://elbiti.com/sitemap.xml
