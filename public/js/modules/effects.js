@@ -2,9 +2,11 @@
 // Mouse and scroll effects
 // =======================
 export function initEffects() {
-  // Scroll tilt effect (mobile)
+  // Scroll tilt effect (mobile) — throttled via requestAnimationFrame
   let lastScrollY = window.scrollY;
   let lastTime = Date.now();
+  let ticking = false;
+  let resetTimeout;
 
   function handleScrollTilt() {
     if (window.innerWidth >= 768) return;
@@ -32,8 +34,8 @@ export function initEffects() {
     lastScrollY = window.scrollY;
     lastTime = now;
 
-    clearTimeout(handleScrollTilt.resetTimeout);
-    handleScrollTilt.resetTimeout = setTimeout(() => {
+    clearTimeout(resetTimeout);
+    resetTimeout = setTimeout(() => {
       document.querySelectorAll('.skill-card, .project-card').forEach(card => {
         card.style.transform = `rotateX(0deg)`;
         card.classList.remove('tilt');
@@ -41,7 +43,15 @@ export function initEffects() {
     }, 150);
   }
 
-  window.addEventListener('scroll', handleScrollTilt);
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        handleScrollTilt();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
 
   // Mouse move effect on project cards
   const container = document.getElementById('projects-grid');
