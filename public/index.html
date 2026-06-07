@@ -33,6 +33,12 @@
   <link rel="icon" href="assets/icon.png" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-icon.png" type="image/png">
 
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://elbiti.com/">
+
+  <!-- Preload critical font -->
+  <link rel="preload" href="assets/fonts/Poppins/Poppins-Regular.ttf" as="font" type="font/ttf" crossorigin>
+
   <!-- Stylesheets: base first, sections deferred -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="preload" as="style" href="css/sections.css" onload="this.rel='stylesheet'">
@@ -40,6 +46,24 @@
 
   <!-- Script -->
   <script src="js/script.js" type="module"></script>
+
+  <!-- Structured data: Person schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Sergio González Sánchez",
+    "url": "https://elbiti.com",
+    "image": "https://elbiti.com/assets/personal-foto.jpg",
+    "jobTitle": "Software Developer",
+    "description": "Passionate C++ and Python developer focused on scalable and efficient solutions.",
+    "sameAs": [
+      "https://github.com/sgonsan",
+      "https://www.linkedin.com/in/sergio-gonsan/"
+    ],
+    "knowsAbout": ["C++", "Python", "JavaScript", "HTML5", "CSS3", "Bash", "Linux"]
+  }
+  </script>
 </head>
 
 
@@ -51,7 +75,12 @@
 
   <!-- Hero / About Me -->
   <section class="hero" id="about">
-    <img src="assets/personal-foto-low-res.jpg" alt="Profile" class="hero-img">
+    <img src="assets/personal-foto-low-res.jpg"
+         srcset="assets/personal-foto.jpg 800w, assets/personal-foto-low-res.jpg 400w"
+         sizes="(min-width: 768px) 150px, 120px"
+         alt="Foto de perfil de Sergio González Sánchez"
+         class="hero-img"
+         decoding="async">
     <div class="hero-text">
       <h1>HELLO, I'M</h1>
       <h2>SERGIO GONZÁLEZ SÁNCHEZ</h2>
@@ -124,11 +153,20 @@
   <!-- Contact -->
   <section class="contact" id="contact">
     <h2>Contact Me</h2>
-    <form id="contact-form">
-      <input type="text" id="name" placeholder="Your Name" required>
-      <input type="email" id="email" placeholder="Your Email" required>
-      <textarea id="message" placeholder="Your Message" required></textarea>
-      <input type="text" id="website" name="website" autocomplete="off" style="display:none;">
+    <form id="contact-form" aria-label="Contact form">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" placeholder="Your name" required aria-required="true">
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="your@email.com" required aria-required="true">
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" placeholder="Your message" required aria-required="true"></textarea>
+      </div>
+      <input type="text" id="website" name="website" autocomplete="off" aria-hidden="true" tabindex="-1" style="display:none;">
       <button type="submit">Send</button>
     </form>
   </section>

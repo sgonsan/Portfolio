@@ -1,6 +1,19 @@
 // =======================
 // Contact form
 // =======================
+
+function showToast(message, type = 'info') {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  toast.setAttribute('role', 'alert');
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
 export function initContactForm() {
   const form = document.getElementById('contact-form');
   const submitButton = form.querySelector('button');
@@ -13,11 +26,10 @@ export function initContactForm() {
     const message = document.getElementById('message').value.trim();
     const website = document.getElementById('website').value.trim(); // honeypot
 
-    if (!name || !email || !message) return alert('Please fill in all fields');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert('Please enter a valid email address');
-    if (message.length > 5000) return alert('Message is too long');
-
-    if (website) return alert('Error sending: Please try again later');
+    if (!name || !email || !message) return showToast('Please fill in all fields', 'error');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast('Please enter a valid email address', 'error');
+    if (message.length > 5000) return showToast('Message is too long (max 5000 characters)', 'error');
+    if (website) return showToast('Error sending: Please try again later', 'error');
 
     submitButton.disabled = true;
     submitButton.textContent = 'Sending...';
@@ -31,13 +43,13 @@ export function initContactForm() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        alert('Message sent successfully!');
+        showToast('Message sent successfully!', 'success');
         form.reset();
       } else {
-        alert('Error sending: ' + (data.error || 'Please try again later'));
+        showToast('Error sending: ' + (data.error || 'Please try again later'), 'error');
       }
     } catch {
-      alert('Error sending message');
+      showToast('Error sending message. Please try again later.', 'error');
     } finally {
       submitButton.disabled = false;
       submitButton.textContent = 'Send';
