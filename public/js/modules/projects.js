@@ -12,58 +12,44 @@ export function initProjectsSection() {
       container.removeAttribute('aria-busy');
       container.innerHTML = "";
 
-      projects.forEach((proj, idx) => {
+      projects.forEach((proj) => {
         const card = document.createElement('div');
         card.className = 'project-card';
 
-        // build elements inside card
         const title = document.createElement('h3');
         const desc = document.createElement('p');
         const link = document.createElement('a');
 
-        // save data
         const titleText = proj.name || '';
         const descText = proj.description || 'No description available.';
 
-        // visible link text
         link.href = proj.html_url;
         link.target = '_blank';
+        link.rel = 'noopener noreferrer';
         link.textContent = 'View on GitHub';
 
-        // Append elements to card
-        card.appendChild(title);
-        card.appendChild(desc);
-        card.appendChild(link);
+        title.textContent = titleText;
+        desc.textContent = descText;
 
-        // Dataset (for modal or other uses)
         card.dataset.name = titleText;
         card.dataset.desc = descText;
         card.dataset.url = proj.html_url;
 
-        // If available:
-        // card.addEventListener('click', () => openProjectModal(card));
-
+        card.appendChild(title);
+        card.appendChild(desc);
+        card.appendChild(link);
         container.appendChild(card);
-
-        // Fill content without typewriter effect
-        title.textContent = titleText;
-        desc.textContent = descText;
       });
-
-      // Enable hover to open modal (if function exists):
-      if (typeof enableHoverOpenForCards === 'function') {
-        // enableHoverOpenForCards();
-      }
     })
     .catch(err => {
       console.error('Error loading projects:', err);
       container.removeAttribute('aria-busy');
       container.innerHTML = `
-          <div class="project-card">
-            <h3>Couldn’t load projects</h3>
-            <p>Please try again later.</p>
-          </div>
-        `;
+        <div class="project-card">
+          <h3>Couldn't load projects</h3>
+          <p>Please try again later.</p>
+        </div>
+      `;
     });
 
   function showProjectPlaceholders(count = 6) {
@@ -73,12 +59,12 @@ export function initProjectsSection() {
       const skel = document.createElement('div');
       skel.className = 'project-card skeleton';
       skel.innerHTML = `
-          <div class="skel-title"></div>
-          <div class="skel-text"></div>
-          <div class="skel-text"></div>
-          <div class="skel-text short"></div>
-          <div class="skel-link"></div>
-        `;
+        <div class="skel-title"></div>
+        <div class="skel-text"></div>
+        <div class="skel-text"></div>
+        <div class="skel-text short"></div>
+        <div class="skel-link"></div>
+      `;
       container.appendChild(skel);
     }
   }
