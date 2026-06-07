@@ -1,10 +1,6 @@
 const nodemailer = require('nodemailer');
 const dns = require('dns').promises;
 const db = require('../db');
-const insertStmt = db.prepare(`
-  INSERT INTO contacts (name, email, message, ip, user_agent)
-  VALUES (@name, @email, @message, @ip, @user_agent)
-`);
 
 // ---------------------- Mail Transport ----------------------
 // Use Zoho (or your SMTP provider) via environment variables.
@@ -130,15 +126,14 @@ exports.handleContact = async (req, res) => {
       return res.status(400).json({ error: 'Email domain does not accept mail' });
     }
 
-    // --- Log to SQLite database ---
+    // --- Log to database ---
     try {
-      insertStmt.run({
-        name: safeName,
-        email: safeEmail,
-        message: safeMessage,
-        ip: req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || null,
-        user_agent: req.headers['user-agent'] || null
-      });
+      const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || null;
+      const userAgent = req.headers['user-agent'] || null;
+      await db.query(
+        'INSERT INTO contacts (name, email, message, ip, user_agent) VALUES ($1, $2, $3, $4, $5)',
+        [safeName, safeEmail, safeMessage, ip, userAgent]
+      );
     } catch (dbErr) {
       console.error('DB insert error (contacts):', dbErr);
     }
