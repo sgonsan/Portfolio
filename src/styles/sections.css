@@ -457,13 +457,12 @@ textarea {
   min-height: 120px;
 }
 
-button {
+form button {
   padding: 0.75rem 1.5rem;
   background: var(--accent-color);
   color: var(--bg-color);
   font-family: 'IntelOneMono', monospace;
   font-weight: 700;
-  text-transform: lowercase;
   border: 1px solid var(--accent-color);
   font-size: 0.9rem;
   cursor: pointer;
@@ -471,7 +470,7 @@ button {
   align-self: flex-start;
 }
 
-button:hover {
+form button:hover {
   background: transparent;
   color: var(--accent-color);
 }
