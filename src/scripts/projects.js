@@ -13,34 +13,35 @@ export function initProjectsSection() {
       container.innerHTML = "";
 
       projects.forEach((proj) => {
-        const card = document.createElement('div');
+        const card = document.createElement('a');
         card.className = 'project-card';
+        card.href = proj.html_url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
 
         const title = document.createElement('h3');
+        title.textContent = proj.name || '';
+
         const desc = document.createElement('p');
-        const link = document.createElement('a');
-
-        const titleText = proj.name || '';
-        const descText = proj.description || 'No description available.';
-
-        link.href = proj.html_url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.textContent = 'view repo';
-
-        title.textContent = titleText;
-        desc.textContent = descText;
-
-        card.dataset.name = titleText;
-        card.dataset.desc = descText;
-        card.dataset.url = proj.html_url;
-        if (proj.stars !== undefined) card.dataset.stars = proj.stars;
-        if (proj.updated) card.dataset.updated = proj.updated;
-        if (proj.lang) card.dataset.lang = proj.lang;
+        desc.textContent = proj.description || 'No description available.';
 
         card.appendChild(title);
         card.appendChild(desc);
-        card.appendChild(link);
+
+        const metaParts = [];
+        if (proj.lang) metaParts.push(proj.lang);
+        if (typeof proj.stars === 'number') metaParts.push(`★ ${proj.stars}`);
+        if (proj.updated) {
+          const d = new Date(proj.updated);
+          if (!isNaN(d)) metaParts.push(`upd ${d.toISOString().slice(0, 10)}`);
+        }
+        if (metaParts.length) {
+          const meta = document.createElement('div');
+          meta.className = 'project-meta-inline';
+          meta.textContent = metaParts.join(' · ');
+          card.appendChild(meta);
+        }
+
         container.appendChild(card);
       });
     })
@@ -48,7 +49,7 @@ export function initProjectsSection() {
       console.error('Error loading projects:', err);
       container.removeAttribute('aria-busy');
       container.innerHTML = `
-        <div class="project-card">
+        <div class="project-card project-card--error">
           <h3>couldn't load projects</h3>
           <p>Please try again later.</p>
         </div>

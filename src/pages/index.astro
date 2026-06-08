@@ -9,7 +9,6 @@ import Achievements from '../components/Achievements.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
 import Terminal from '../components/Terminal.astro';
-import ProjectModal from '../components/ProjectModal.astro';
 ---
 
 <Base>
@@ -24,7 +23,6 @@ import ProjectModal from '../components/ProjectModal.astro';
   </main>
   <Footer />
   <Terminal />
-  <ProjectModal />
 
   <script>
     import { initThemeToggle } from '../scripts/theme.js';
@@ -34,7 +32,6 @@ import ProjectModal from '../components/ProjectModal.astro';
     import { initContactForm } from '../scripts/contact.js';
     import { initTerminal } from '../scripts/terminal.js';
     import { initEffects } from '../scripts/effects.js';
-    import { initProjectModal } from '../scripts/projectModal.js';
 
     initThemeToggle();
     initSiteData();
@@ -43,6 +40,5 @@ import ProjectModal from '../components/ProjectModal.astro';
     initContactForm();
     initTerminal();
     initEffects();
-    initProjectModal();
   </script>
 </Base>
