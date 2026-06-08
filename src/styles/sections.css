@@ -100,28 +100,49 @@
 }
 
 /* Skeleton loaders */
+.project-card.skeleton {
+  counter-increment: none;
+  overflow: hidden;
+}
+
+.project-card.skeleton::before {
+  content: "--";
+  color: var(--text-dim);
+  opacity: 0.5;
+}
+
 .project-card.skeleton .skel-title,
 .project-card.skeleton .skel-text,
 .project-card.skeleton .skel-link {
   background: var(--skeleton-base);
   margin-top: 0.6rem;
+  position: relative;
+  overflow: hidden;
 }
-.project-card.skeleton .skel-title { height: 16px; width: 60%; }
-.project-card.skeleton .skel-text { height: 10px; width: 100%; opacity: 0.8; }
+.project-card.skeleton .skel-title { height: 14px; width: 55%; }
+.project-card.skeleton .skel-text { height: 10px; width: 100%; }
 .project-card.skeleton .skel-text.short { width: 70%; }
-.project-card.skeleton .skel-link { height: 12px; width: 35%; margin-top: 0.8rem; }
+.project-card.skeleton .skel-link { height: 12px; width: 30%; margin-top: 1rem; }
 
-.project-card.skeleton::after {
+.project-card.skeleton .skel-title::after,
+.project-card.skeleton .skel-text::after,
+.project-card.skeleton .skel-link::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent 0%, var(--skeleton-shine) 50%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--skeleton-shine) 50%,
+    transparent 100%
+  );
   transform: translateX(-100%);
-  animation: skel-shimmer 1.2s infinite;
-  opacity: 0.5;
+  animation: skel-shimmer 1.4s infinite;
 }
 
-@keyframes skel-shimmer { 100% { transform: translateX(100%); } }
+@keyframes skel-shimmer {
+  100% { transform: translateX(100%); }
+}
 
 /* =======================
    Project modal
