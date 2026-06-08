@@ -7,7 +7,6 @@
   --section-bg: #111111;
   --card-bg: #161616;
   --border-color: #2a2a2a;
-  --border-hover: #3a3a3a;
   --text-color: #e5e5e5;
   --text-dim: #888;
   --accent-color: #ad58df;
@@ -23,11 +22,10 @@
   --section-bg: #fafaf7;
   --card-bg: #ffffff;
   --border-color: #d4d4cc;
-  --border-hover: #999;
   --text-color: #1a1a1a;
   --text-dim: #666;
-  --accent-color: #8056a5;
-  --accent-secondary: #6b4690;
+  --accent-color: #6b4690;
+  --accent-secondary: #8056a5;
   --accent-bg: #e0d4ec;
   --accent-bg-secondary: #c987cf;
   --skeleton-base: #e8e8e0;
