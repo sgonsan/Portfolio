@@ -17,6 +17,7 @@ const app = express();
 const PORT = process.env.NODE_ENV === 'production' ? 8080 : 3000;
 
 // Middleware
+app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 

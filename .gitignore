@@ -19,6 +19,7 @@ Thumbs.db
 dist/
 build/
 .cache/
+.astro/
 
 # Logs
 *.log

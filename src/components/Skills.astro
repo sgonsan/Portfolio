@@ -1,0 +1,11 @@
+---
+const skills = ['C++', 'HTML5', 'CSS3', 'JavaScript', 'Bash', 'Python', 'Linux'];
+---
+<section class="skills" id="skills">
+  <h2>Skills</h2>
+  <div class="skills-grid">
+    {skills.map(skill => (
+      <div class="skill-card">{skill}</div>
+    ))}
+  </div>
+</section>

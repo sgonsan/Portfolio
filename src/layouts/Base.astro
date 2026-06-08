@@ -1,0 +1,74 @@
+---
+import '../styles/global.css';
+import '../styles/sections.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Sergio González Sánchez - Portfolio',
+  description = 'Portfolio of Sergio González Sánchez, developer specialized in C++ and Python. Explore skills, projects and achievements.'
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{title}</title>
+  <meta name="description" content={description}>
+
+  <!-- Open Graph / WhatsApp -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content="Passionate C++ and Python developer focused on scalable and efficient solutions. Check out my projects and achievements." />
+  <meta property="og:image" content="https://elbiti.com/assets/preview.png" />
+  <meta property="og:url" content="https://elbiti.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Sergio González Sánchez Portfolio" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content="Passionate C++ and Python developer focused on scalable and efficient solutions. Explore my projects and achievements." />
+  <meta name="twitter:image" content="https://elbiti.com/assets/preview.png" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/apple-icon.png" type="image/png">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://elbiti.com/">
+
+  <!-- Preload critical font -->
+  <link rel="preload" href="/assets/fonts/Poppins/Poppins-Regular.ttf" as="font" type="font/ttf" crossorigin>
+
+  <!-- Structured data: Person schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Sergio González Sánchez",
+    "url": "https://elbiti.com",
+    "image": "https://elbiti.com/assets/personal-foto.jpg",
+    "jobTitle": "Software Developer",
+    "description": "Passionate C++ and Python developer focused on scalable and efficient solutions.",
+    "sameAs": [
+      "https://github.com/sgonsan",
+      "https://www.linkedin.com/in/sergio-gonsan/"
+    ],
+    "knowsAbout": ["C++", "Python", "JavaScript", "HTML5", "CSS3", "Bash", "Linux"]
+  }
+  </script>
+</head>
+
+<body>
+  <slot />
+</body>
+</html>

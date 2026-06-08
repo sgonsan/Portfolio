@@ -1,0 +1,25 @@
+---
+---
+<button id="open-terminal" aria-label="Open terminal">&gt;_</button>
+
+<div id="terminal-modal" class="terminal-modal">
+  <div class="terminal-header">
+    <span>Portfolio Terminal</span>
+    <button id="close-terminal" aria-label="Close terminal">&times;</button>
+  </div>
+  <div id="terminal-output" class="terminal-output"></div>
+  <input
+    id="terminal-input"
+    type="text"
+    placeholder="Type a command..."
+    autocomplete="off"
+    autocapitalize="off"
+    autocorrect="off"
+    spellcheck="false"
+  />
+  <div id="terminal-controls" class="terminal-controls">
+    <button data-action="tab">⇥</button>
+    <button data-action="up">↑</button>
+    <button data-action="down">↓</button>
+  </div>
+</div>
