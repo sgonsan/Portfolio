@@ -1,11 +1,11 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
+const compression = require('compression');
 require('@dotenvx/dotenvx').config();
 
 const zenRoutes = require('./routes/zen');
 const projectsRoutes = require('./routes/projects');
-const timelineRoutes = require('./routes/timeline');
 const contactRoutes = require('./routes/contact');
 const statsRoutes = require('./routes/stats');
 const fsRoutes = require('./routes/fs');
@@ -17,6 +17,19 @@ const app = express();
 const PORT = process.env.NODE_ENV === 'production' ? 8080 : 3000;
 
 // Middleware
+app.use(compression());
+
+// Astro hashed assets — cache aggressively (1 year, immutable)
+app.use('/_astro', express.static(path.join(__dirname, 'dist/_astro'), {
+  maxAge: '1y',
+  immutable: true
+}));
+
+// Static fonts and images can also be cached long
+app.use('/assets', express.static(path.join(__dirname, 'public/assets'), {
+  maxAge: '30d'
+}));
+
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
@@ -24,7 +37,6 @@ app.use(bodyParser.json());
 // Routes
 app.use('/api/zen', zenRoutes);
 app.use('/api/projects', projectsRoutes);
-app.use('/api/timeline', timelineRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/fs', fsRoutes);
