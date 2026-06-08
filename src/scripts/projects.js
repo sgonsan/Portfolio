@@ -62,6 +62,7 @@ export function initProjectsSection() {
         <div class="skel-title"></div>
         <div class="skel-text"></div>
         <div class="skel-text"></div>
+        <div class="skel-text"></div>
         <div class="skel-text short"></div>
         <div class="skel-link"></div>
       `;
