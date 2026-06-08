@@ -49,6 +49,16 @@ const {
   <!-- Preload critical font -->
   <link rel="preload" href="/assets/fonts/Poppins/Poppins-Regular.ttf" as="font" type="font/ttf" crossorigin>
 
+  <!-- Apply saved theme before paint to avoid flash -->
+  <script is:inline>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
   <!-- Structured data: Person schema -->
   <script type="application/ld+json">
   {
