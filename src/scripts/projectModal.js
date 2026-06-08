@@ -12,6 +12,7 @@ export function initProjectModal() {
   const modalDesc = document.getElementById('project-modal-desc');
   const modalLink = document.getElementById('project-modal-link');
 
+  const metaContainer = document.getElementById('project-modal-meta');
   const rowStars = document.getElementById('meta-stars');
   const rowUpdated = document.getElementById('meta-updated');
   const rowLang = document.getElementById('meta-language');
@@ -67,19 +68,21 @@ export function initProjectModal() {
     modalLink.href = card.dataset.url || '#';
 
     rowStars.hidden = rowUpdated.hidden = rowLang.hidden = true;
+    const valueSpan = (row) => row.querySelector('span:not(.meta-label)');
     if (card.dataset.stars) {
       rowStars.hidden = false;
-      rowStars.querySelector('span').textContent = card.dataset.stars;
+      valueSpan(rowStars).textContent = card.dataset.stars;
     }
     if (card.dataset.updated) {
       rowUpdated.hidden = false;
       const d = new Date(card.dataset.updated);
-      rowUpdated.querySelector('span').textContent = d.toLocaleString();
+      valueSpan(rowUpdated).textContent = isNaN(d) ? card.dataset.updated : d.toLocaleDateString();
     }
     if (card.dataset.lang) {
       rowLang.hidden = false;
-      rowLang.querySelector('span').textContent = card.dataset.lang;
+      valueSpan(rowLang).textContent = card.dataset.lang;
     }
+    metaContainer.hidden = rowStars.hidden && rowUpdated.hidden && rowLang.hidden;
 
     // Original card dimensions
     const first = card.getBoundingClientRect();
@@ -136,6 +139,16 @@ export function initProjectModal() {
     };
   }
 
-  // Enable hover to open modal (if function exists):
-  // enableHoverOpenForCards();
+  // Click-to-open via delegation so it also catches cards
+  // injected async by projects.js after the API resolves.
+  const projectsContainer = document.getElementById('projects-grid');
+  if (projectsContainer) {
+    projectsContainer.addEventListener('click', (e) => {
+      // Let the "view repo" link do its own thing
+      if (e.target.closest('a')) return;
+      const card = e.target.closest('.project-card');
+      if (!card || card.classList.contains('skeleton')) return;
+      openProjectModal(card);
+    });
+  }
 }

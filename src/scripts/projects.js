@@ -34,6 +34,9 @@ export function initProjectsSection() {
         card.dataset.name = titleText;
         card.dataset.desc = descText;
         card.dataset.url = proj.html_url;
+        if (proj.stars !== undefined) card.dataset.stars = proj.stars;
+        if (proj.updated) card.dataset.updated = proj.updated;
+        if (proj.lang) card.dataset.lang = proj.lang;
 
         card.appendChild(title);
         card.appendChild(desc);

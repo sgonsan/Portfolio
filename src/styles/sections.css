@@ -57,7 +57,10 @@
   padding: 1rem 1.2rem;
   transition: border-color 0.15s ease;
   counter-increment: project;
+  cursor: pointer;
 }
+
+.project-card.skeleton { cursor: default; }
 
 .project-card::before {
   content: counter(project, decimal-leading-zero) ".";
