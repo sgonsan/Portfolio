@@ -26,7 +26,7 @@ export function initProjectsSection() {
         link.href = proj.html_url;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
-        link.textContent = 'View on GitHub';
+        link.textContent = 'view repo';
 
         title.textContent = titleText;
         desc.textContent = descText;
@@ -46,7 +46,7 @@ export function initProjectsSection() {
       container.removeAttribute('aria-busy');
       container.innerHTML = `
         <div class="project-card">
-          <h3>Couldn't load projects</h3>
+          <h3>couldn't load projects</h3>
           <p>Please try again later.</p>
         </div>
       `;

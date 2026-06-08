@@ -163,6 +163,12 @@ section {
   font-weight: 700;
   color: var(--accent-color);
   text-transform: lowercase;
+  text-decoration: none;
+}
+
+.logo:hover {
+  color: var(--accent-secondary);
+  text-decoration: none;
 }
 
 .logo::before {
@@ -203,34 +209,29 @@ section {
   filter: grayscale(20%) contrast(1.05);
 }
 
-.hero-text h1 {
+.hero-greeting {
+  font-family: 'IntelOneMono', monospace;
   font-size: 1rem;
   color: var(--text-dim);
   font-weight: 400;
   margin-bottom: 0.25rem;
 }
 
-.hero-text h1::before {
+.hero-greeting::before {
   content: "$ ";
   color: var(--accent-color);
 }
 
-.hero-text h2 {
+.hero-text h1 {
   font-size: clamp(1.75rem, 5vw, 2.75rem);
   color: var(--text-color);
   text-transform: none;
-  border-bottom: none;
-  padding-bottom: 0;
   margin-bottom: 0.75rem;
   line-height: 1.1;
 }
 
-.hero-text h2::before {
-  content: none;
-}
-
 /* Blinking cursor after the name */
-.hero-text h2::after {
+.hero-text h1::after {
   content: "_";
   color: var(--accent-color);
   animation: blink 1s step-start infinite;
