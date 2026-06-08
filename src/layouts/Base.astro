@@ -49,11 +49,13 @@ const {
   <!-- Preload critical font -->
   <link rel="preload" href="/assets/fonts/Poppins/Poppins-Regular.ttf" as="font" type="font/ttf" crossorigin>
 
-  <!-- Apply saved theme before paint to avoid flash -->
+  <!-- Apply saved theme (or system preference) before paint to avoid flash -->
   <script is:inline>
     (function() {
       const saved = localStorage.getItem('theme');
-      if (saved === 'light') {
+      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      const theme = saved || (prefersLight ? 'light' : 'dark');
+      if (theme === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
       }
     })();
