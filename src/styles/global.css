@@ -183,20 +183,66 @@ a:hover {
 .pane h2::before { content: "> "; color: var(--accent-color); }
 .pane h2::after { content: "/"; color: var(--accent-color); }
 
-/* Staggered boot reveal */
-@keyframes pane-in {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: none; }
+/* ============================================================
+   CRT boot — page power-on + per-pane scroll reveal
+   Hidden states only apply under html.js (set by theme-init.js
+   pre-paint), so everything stays visible without JavaScript.
+   ============================================================ */
+
+/* whole page powers on like a CRT: horizontal line, then vertical expand */
+@keyframes crt-on {
+  0% { opacity: 0; transform: scaleY(0.004); }
+  30% { opacity: 1; transform: scaleY(0.004); }
+  55% { transform: scaleY(1.015); }
+  100% { opacity: 1; transform: none; }
 }
-main .pane {
-  animation: pane-in 0.45s ease both;
+html.js body { animation: crt-on 0.5s ease-out both; }
+
+/* terminal-style hard prints (no easing — lines just appear) */
+@keyframes term-print {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-main .pane:nth-child(1) { animation-delay: 0.05s; }
-main .pane:nth-child(2) { animation-delay: 0.15s; }
-main .pane:nth-child(3) { animation-delay: 0.25s; }
-main .pane:nth-child(4) { animation-delay: 0.35s; }
-main .pane:nth-child(5) { animation-delay: 0.45s; }
-main .pane:nth-child(6) { animation-delay: 0.55s; }
+
+/* panes below the fold: wipe down + flicker like a redraw */
+@keyframes crt-wipe {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes crt-flicker {
+  0% { opacity: 0; }
+  8% { opacity: 1; }
+  16% { opacity: 0.25; }
+  26% { opacity: 1; }
+  34% { opacity: 0.4; }
+  44% { opacity: 1; }
+  100% { opacity: 1; }
+}
+@keyframes scan-sweep {
+  0% { top: 0; opacity: 1; }
+  80% { opacity: 1; }
+  100% { top: calc(100% - 2px); opacity: 0; }
+}
+
+html.js main .pane:not(.hero-pane):not(.revealed) { opacity: 0; }
+
+main .pane.revealed {
+  animation: crt-wipe 0.45s steps(10) both, crt-flicker 0.65s steps(1) both;
+}
+
+/* accent scanline sweeps the pane once while it boots */
+main .pane.revealed::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: var(--accent-color);
+  box-shadow: 0 0 14px var(--accent-color);
+  animation: scan-sweep 0.5s linear both;
+  pointer-events: none;
+}
 
 @media (min-width: 1064px) {
   .pane { margin: 1.75rem auto; }
@@ -268,14 +314,47 @@ main .pane:nth-child(6) { animation-delay: 0.55s; }
 }
 
 /* ============================================================
-   Hero
+   Hero — full viewport boot screen
    ============================================================ */
+.hero-pane {
+  min-height: calc(100svh - 5.5rem);
+  display: flex;
+  flex-direction: column;
+}
+.hero-pane .pane-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .hero-layout {
   display: flex;
   flex-direction: column-reverse;
   gap: 1.5rem;
   align-items: flex-start;
 }
+
+/* boot sequence: lines print one by one, photo flickers in last */
+html.js .hero-pane .pane-bar { animation: term-print 0.01s 0.45s steps(1) both; }
+html.js .hero-greeting { animation: term-print 0.01s 0.7s steps(1) both; }
+html.js .hero-text h1 { animation: term-print 0.01s 0.95s steps(1) both; }
+html.js .hero-text > p:not(.hero-greeting):not(.zen-quote) {
+  animation: term-print 0.01s 1.25s steps(1) both;
+}
+html.js .hero-img-frame { animation: crt-flicker 0.6s 1.5s steps(1) both; }
+html.js .scroll-hint { animation: term-print 0.01s 1.9s steps(1) both, hint-blink 1.4s 1.9s steps(2) infinite; }
+
+.scroll-hint {
+  margin-top: auto;
+  padding: 2rem 0 1rem;
+  font-family: 'IntelOneMono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  align-self: center;
+}
+.scroll-hint::before { content: "▼ "; color: var(--accent-color); }
+@keyframes hint-blink { 50% { opacity: 0.2; } }
 
 .hero-img-frame { position: relative; flex-shrink: 0; }
 .hero-img {
@@ -307,8 +386,8 @@ main .pane:nth-child(6) { animation-delay: 0.55s; }
 .hero-greeting::before { content: "$ "; color: var(--accent-color); }
 
 .hero-text h1 {
-  font-size: clamp(1.6rem, 5vw, 2.6rem);
-  line-height: 1.1;
+  font-size: clamp(2rem, 6.5vw, 4rem);
+  line-height: 1.05;
   margin-bottom: 0.75rem;
 }
 .hero-text h1::after {
@@ -338,8 +417,9 @@ main .pane:nth-child(6) { animation-delay: 0.55s; }
 .zen-quote::before { content: "// "; color: var(--accent-color); }
 
 @media (min-width: 768px) {
-  .hero-layout { flex-direction: row; justify-content: space-between; }
+  .hero-layout { flex-direction: row; justify-content: space-between; align-items: center; }
   .hero-text { max-width: 640px; }
+  .hero-img { width: 200px; height: 200px; }
 }
 
 /* ============================================================

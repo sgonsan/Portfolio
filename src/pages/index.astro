@@ -27,12 +27,14 @@ import Terminal from '../components/Terminal.astro';
   <script>
     import { initThemeToggle } from '../scripts/theme.js';
     import { initScrollSpy } from '../scripts/nav.js';
+    import { initReveal } from '../scripts/reveal.js';
     import { initSiteData } from '../scripts/siteData.js';
     import { initProjects } from '../scripts/projects.js';
     import { initContactForm } from '../scripts/contact.js';
 
     initThemeToggle();
     initScrollSpy();
+    initReveal();
     initSiteData();
     initProjects();
     initContactForm();
