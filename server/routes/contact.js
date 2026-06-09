@@ -5,8 +5,10 @@ const { asyncWrap } = require('../middleware/errors');
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // DNS results cached so repeated submissions don't hammer the resolver.
+// Bounded: attacker-supplied unique domains must not grow memory forever.
 const dnsCache = new Map();
 const DNS_TTL = 10 * 60 * 1000;
+const DNS_CACHE_MAX = 1000;
 
 async function domainAcceptsMail(domain, resolver = dns) {
   const hit = dnsCache.get(domain);
@@ -24,6 +26,10 @@ async function domainAcceptsMail(domain, resolver = dns) {
     try { ok = (await resolver.resolve6(domain)).length > 0; } catch { /* unresolvable */ }
   }
 
+  if (dnsCache.size >= DNS_CACHE_MAX) {
+    // Evict the oldest entry (Map preserves insertion order).
+    dnsCache.delete(dnsCache.keys().next().value);
+  }
   dnsCache.set(domain, { ok, exp: Date.now() + DNS_TTL });
   return ok;
 }
