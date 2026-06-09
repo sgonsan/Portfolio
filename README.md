@@ -8,11 +8,32 @@
 
 ## Stack
 
-- **Frontend:** Astro 6 (static build), vanilla JS, no UI framework
+- **Frontend:** Astro 6 SSR (Node adapter in middleware mode), vanilla JS, no UI framework
 - **Backend:** Node 22, Express 5, helmet, express-rate-limit
-- **Database:** PostgreSQL (contacts, leaderboard, visit stats)
+- **Database:** PostgreSQL (CMS content, section order, admin accounts/sessions, analytics, contacts, leaderboard)
 - **Mail:** nodemailer 8 (contact form)
 - **Tests:** vitest + supertest (dependency-injected fakes, no real DB/SMTP needed)
+
+## Admin panel (`/admin`)
+
+Every visible text on the site, the order and visibility of sections, contact
+messages, analytics and panel accounts are managed from `/admin`:
+
+- **Content:** edit any text field or structured list (timeline, skills,
+  achievements). Saving invalidates the SSR cache — changes are live on the
+  next visit.
+- **Sections:** reorder with ↑/↓ and enable/disable whole sections.
+- **Dashboard:** cookie-less analytics — pageviews, daily uniques
+  (sha256(day|ip|ua), raw IPs never stored), per-section visible time,
+  countries (offline geoip), referrers, devices, browsers, OS, languages,
+  hour histogram; all date-ranged. Raw data is purged after 90 days.
+- **Accounts:** DB-backed users with bcrypt hashes; sessions are random
+  tokens stored hashed, HttpOnly + SameSite=Strict cookies, 24 h sliding
+  expiry, 5-failure lockout. Bootstrap the first account with:
+
+```bash
+npm run admin:create -- <username>
+```
 
 ## Project structure
 
@@ -54,8 +75,9 @@ npm test
 
 - Strict CSP (`script-src 'self'`) — the page ships **zero inline scripts**;
   all dynamic DOM is built with `textContent`/`createElement`, never `innerHTML`.
-- Admin basic auth uses constant-time comparison, supports `:` in passwords,
-  is rate-limited, and returns 503 when credentials are not configured.
+- Panel auth: bcrypt password hashes, hashed session tokens, HttpOnly +
+  SameSite=Strict cookies, login rate limit + account lockout, same-origin
+  check on mutations. No credentials in environment variables.
 - CSV export escapes spreadsheet formula injection.
 - Mail headers are stripped of CR/LF; `replyTo` carries the bare address only.
 - `TRUST_PROXY_HOPS` controls `X-Forwarded-For` trust so rate limits can't be spoofed.
