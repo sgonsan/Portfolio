@@ -273,8 +273,7 @@
 .footer {
   border-top: 1px solid var(--border-color);
   background: var(--section-bg);
-  margin-top: 2.5rem;
-  padding: 0.8rem 1.25rem;
+  padding: 0.8rem max(1.25rem, calc(50% - 500px));
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem 1.5rem;
