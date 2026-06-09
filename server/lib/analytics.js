@@ -169,7 +169,8 @@ function createAnalytics(db, geo) {
 
     async purgeOld() {
       await db.query(
-        `DELETE FROM analytics_pageviews WHERE ts < now() - interval '${RETENTION_DAYS} days'`
+        'DELETE FROM analytics_pageviews WHERE ts < now() - make_interval(days => $1)',
+        [RETENTION_DAYS]
       );
     }
   };
