@@ -20,7 +20,7 @@ Constraint from user: rebuild everything from scratch; keep ONLY the color schem
 | 5 | Email header injection via name in subject/replyTo | Strip `[\r\n]`, replyTo uses bare email only |
 | 6 | Spoofable `x-forwarded-for`, no `trust proxy` | `app.set('trust proxy', N)` from env `TRUST_PROXY_HOPS` |
 | 7 | Undeclared `body-parser` dependency | `express.json({ limit })` built-in |
-| 8 | Postgres `rejectUnauthorized: false` | Strict TLS by default; opt-out only via explicit env |
+| 8 | Postgres `rejectUnauthorized: false` | TLS verification always on; self-signed servers supply CA via `DATABASE_CA_CERT` |
 | 9 | Unthrottled scores POST | Rate limits on every mutating endpoint + global API limiter |
 | 10 | Outdated Express 4.18 | Express 5 (latest), latest helmet/express-rate-limit/pg/nodemailer |
 | 11 | No global error/404 handlers; sync route crashes | Central async wrapper + error middleware, no stack leak |
