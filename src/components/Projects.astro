@@ -1,9 +1,16 @@
 ---
+const { c } = Astro.props;
 ---
 <section class="pane" id="projects" aria-label="Projects">
-  <div class="pane-bar"><span class="pane-path"><b>sergio@elbiti</b>:~/projects</span></div>
+  <div class="pane-bar"><span class="pane-path"><b>sergio@elbiti</b>:{c.path}</span></div>
   <div class="pane-body">
-    <h2>projects</h2>
-    <div id="projects-grid" class="projects-grid" aria-live="polite" aria-busy="true"></div>
+    <h2>{c.title}</h2>
+    <div
+      id="projects-grid"
+      class="projects-grid"
+      aria-live="polite"
+      aria-busy="true"
+      data-error-text={c.error_text}
+    ></div>
   </div>
 </section>

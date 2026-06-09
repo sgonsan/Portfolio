@@ -52,12 +52,12 @@ export function initContactForm() {
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         status.className = 'form-status ok';
-        status.textContent = 'message sent — thanks!';
+        status.textContent = form.dataset.successText || 'message sent — thanks!';
         form.reset();
         counter.textContent = '0/5000';
       } else {
         status.className = 'form-status err';
-        status.textContent = data.error || 'something went wrong, try again later';
+        status.textContent = data.error || form.dataset.errorText || 'something went wrong';
       }
     } catch {
       status.className = 'form-status err';

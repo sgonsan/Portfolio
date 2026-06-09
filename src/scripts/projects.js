@@ -78,7 +78,7 @@ export async function initProjects() {
   } catch {
     const error = document.createElement('p');
     error.className = 'projects-error';
-    error.textContent = 'could not load projects — find them on github.com/sgonsan';
+    error.textContent = grid.dataset.errorText || 'could not load projects';
     grid.replaceChildren(error);
   } finally {
     grid.setAttribute('aria-busy', 'false');

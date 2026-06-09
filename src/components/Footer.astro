@@ -1,11 +1,12 @@
 ---
+const { c } = Astro.props;
 const year = new Date().getFullYear();
 ---
 <footer class="footer">
-  <span class="session">elbiti</span>
-  <span>&copy; {year} sergio gonzález sánchez</span>
+  <span class="session">{c.session}</span>
+  <span>&copy; {year} {c.copyright}</span>
   <div id="site-stats" class="site-stats" aria-live="polite"></div>
-  <button id="terminal-open" class="terminal-open" type="button" aria-haspopup="dialog">open terminal</button>
+  <button id="terminal-open" class="terminal-open" type="button" aria-haspopup="dialog">{c.terminal_button}</button>
   <div class="footer-links">
     <a href="https://github.com/sgonsan" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
       <svg class="social-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

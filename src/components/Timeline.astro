@@ -1,18 +1,18 @@
 ---
-import items from '../content/timeline.json';
+const { c } = Astro.props;
 
-const formatDate = (iso: string) => {
-  const [year, month] = iso.split('-');
+const formatDate = (iso) => {
+  const [year, month] = String(iso).split('-');
   const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-  return `${months[Number(month) - 1]} ${year}`;
+  return `${months[Number(month) - 1] ?? ''} ${year}`.trim();
 };
 ---
 <section class="pane" id="timeline" aria-label="Timeline">
-  <div class="pane-bar"><span class="pane-path"><b>sergio@elbiti</b>:~/timeline</span></div>
+  <div class="pane-bar"><span class="pane-path"><b>sergio@elbiti</b>:{c.path}</span></div>
   <div class="pane-body">
-    <h2>timeline</h2>
+    <h2>{c.title}</h2>
     <ol class="timeline-list">
-      {items.map((item) => (
+      {c.items.map((item) => (
         <li class="timeline-item">
           <span class="timeline-date">{formatDate(item.date)}</span>
           <h3>{item.title}</h3>

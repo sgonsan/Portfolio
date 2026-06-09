@@ -1,12 +1,13 @@
 ---
+const { c } = Astro.props;
 ---
 <section class="pane hero-pane" id="about" aria-label="About me">
-  <div class="pane-bar"><span class="pane-path"><b>sergio@elbiti</b>:~/about</span></div>
+  <div class="pane-bar"><span class="pane-path"><b>sergio@elbiti</b>:{c.path}</span></div>
   <div class="pane-body hero-layout">
     <div class="hero-text">
-      <p class="hero-greeting">whoami</p>
-      <h1>SERGIO GONZÁLEZ SÁNCHEZ</h1>
-      <p>A passionate developer focused on creating efficient, scalable solutions and delivering high-quality user experiences.</p>
+      <p class="hero-greeting">{c.greeting}</p>
+      <h1>{c.name}</h1>
+      <p>{c.description}</p>
       <p id="zen-quote" class="zen-quote" aria-live="polite"></p>
     </div>
     <div class="hero-img-frame">
@@ -22,5 +23,5 @@
       >
     </div>
   </div>
-  <p class="scroll-hint" aria-hidden="true">scroll</p>
+  <p class="scroll-hint" aria-hidden="true">{c.scroll_hint}</p>
 </section>

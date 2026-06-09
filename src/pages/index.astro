@@ -9,19 +9,31 @@ import Achievements from '../components/Achievements.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
 import Terminal from '../components/Terminal.astro';
+import { getSiteData } from '../lib/siteData.js';
+
+const { order, content } = await getSiteData(Astro);
+
+const registry = {
+  about: Hero,
+  skills: Skills,
+  projects: Projects,
+  timeline: Timeline,
+  achievements: Achievements,
+  contact: Contact
+};
+
+const sections = order.filter((o) => o.enabled && registry[o.section]);
 ---
 
-<Base>
-  <Header />
+<Base meta={content.meta}>
+  <Header sections={sections.map((s) => s.section)} />
   <main id="main">
-    <Hero />
-    <Skills />
-    <Projects />
-    <Timeline />
-    <Achievements />
-    <Contact />
+    {sections.map(({ section }) => {
+      const Component = registry[section];
+      return <Component c={content[section]} />;
+    })}
   </main>
-  <Footer />
+  <Footer c={content.footer} />
   <Terminal />
 
   <script>
@@ -31,6 +43,7 @@ import Terminal from '../components/Terminal.astro';
     import { initSiteData } from '../scripts/siteData.js';
     import { initProjects } from '../scripts/projects.js';
     import { initContactForm } from '../scripts/contact.js';
+    import { initTracking } from '../scripts/track.js';
 
     initThemeToggle();
     initScrollSpy();
@@ -38,6 +51,7 @@ import Terminal from '../components/Terminal.astro';
     initSiteData();
     initProjects();
     initContactForm();
+    initTracking();
 
     // Terminal is lazy: module loads on first open (button or Ctrl+`)
     let terminal = null;

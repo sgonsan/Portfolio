@@ -1,17 +1,12 @@
 ---
-const achievements = [
-  {
-    title: 'Maxoarte Award 2022 — Other Musical Modalities',
-    description: 'Recognized for innovative music projects exploring new approaches to production and composition.'
-  }
-];
+const { c } = Astro.props;
 ---
 <section class="pane" id="achievements" aria-label="Achievements">
-  <div class="pane-bar"><span class="pane-path"><b>sergio@elbiti</b>:~/achievements</span></div>
+  <div class="pane-bar"><span class="pane-path"><b>sergio@elbiti</b>:{c.path}</span></div>
   <div class="pane-body">
-    <h2>achievements</h2>
+    <h2>{c.title}</h2>
     <ul class="achievement-list">
-      {achievements.map((a) => (
+      {c.items.map((a) => (
         <li>
           <h3>{a.title}</h3>
           <p>{a.description}</p>

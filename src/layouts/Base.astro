@@ -2,17 +2,26 @@
 import '../styles/global.css';
 import '../styles/sections.css';
 
-interface Props {
-  title?: string;
-  description?: string;
-}
+const { meta = {} } = Astro.props;
+const title = meta.title ?? 'Sergio González Sánchez - Portfolio';
+const description = meta.description ?? '';
+const ogDescription = meta.og_description ?? description;
 
-const {
-  title = 'Sergio González Sánchez - Portfolio',
-  description = 'Portfolio of Sergio González Sánchez, developer specialized in C++ and Python. Explore skills, projects and achievements.'
-} = Astro.props;
-
-const ogDescription = 'Passionate C++ and Python developer focused on scalable and efficient solutions. Check out my projects and achievements.';
+// JSON-LD: escape `<` so editable strings can never break out of the tag.
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Sergio González Sánchez',
+  url: 'https://elbiti.com',
+  image: 'https://elbiti.com/assets/personal-foto.jpg',
+  jobTitle: 'Software Developer',
+  description: ogDescription,
+  sameAs: [
+    'https://github.com/sgonsan',
+    'https://www.linkedin.com/in/sergio-gonsan/'
+  ],
+  knowsAbout: ['C++', 'Python', 'JavaScript', 'HTML5', 'CSS3', 'Bash', 'Linux']
+}).replace(/</g, '\\u003c');
 ---
 
 <!DOCTYPE html>
@@ -50,20 +59,7 @@ const ogDescription = 'Passionate C++ and Python developer focused on scalable a
   <script src="/theme-init.js" is:inline></script>
 
   <!-- Structured data: JSON-LD is a non-executable data block, CSP-safe -->
-  <script type="application/ld+json" is:inline set:html={JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Sergio González Sánchez',
-    url: 'https://elbiti.com',
-    image: 'https://elbiti.com/assets/personal-foto.jpg',
-    jobTitle: 'Software Developer',
-    description: 'Passionate C++ and Python developer focused on scalable and efficient solutions.',
-    sameAs: [
-      'https://github.com/sgonsan',
-      'https://www.linkedin.com/in/sergio-gonsan/'
-    ],
-    knowsAbout: ['C++', 'Python', 'JavaScript', 'HTML5', 'CSS3', 'Bash', 'Linux']
-  })} />
+  <script type="application/ld+json" is:inline set:html={jsonLd} />
 </head>
 
 <body>
