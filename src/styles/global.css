@@ -205,11 +205,7 @@ html.js body { animation: crt-on 0.5s ease-out both; }
   to { opacity: 1; }
 }
 
-/* panes below the fold: wipe down + flicker like a redraw */
-@keyframes crt-wipe {
-  from { clip-path: inset(0 0 100% 0); }
-  to { clip-path: inset(0 0 0 0); }
-}
+/* hero photo flicker (boot only) */
 @keyframes crt-flicker {
   0% { opacity: 0; }
   8% { opacity: 1; }
@@ -219,30 +215,25 @@ html.js body { animation: crt-on 0.5s ease-out both; }
   44% { opacity: 1; }
   100% { opacity: 1; }
 }
-@keyframes scan-sweep {
-  0% { top: 0; opacity: 1; }
-  80% { opacity: 1; }
-  100% { top: calc(100% - 2px); opacity: 0; }
+
+/* panes below the fold: smooth layered rise (ease-out-expo) */
+@keyframes pane-rise {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes body-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
 }
 
 html.js main .pane:not(.hero-pane):not(.revealed) { opacity: 0; }
 
 main .pane.revealed {
-  animation: crt-wipe 0.45s steps(10) both, crt-flicker 0.65s steps(1) both;
+  animation: pane-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-
-/* accent scanline sweeps the pane once while it boots */
-main .pane.revealed::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 2px;
-  background: var(--accent-color);
-  box-shadow: 0 0 14px var(--accent-color);
-  animation: scan-sweep 0.5s linear both;
-  pointer-events: none;
+/* body lags a touch behind its frame — adds depth without noise */
+main .pane.revealed .pane-body {
+  animation: body-rise 0.8s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ============================================================
