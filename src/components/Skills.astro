@@ -1,0 +1,23 @@
+---
+const groups = [
+  { name: 'languages', items: ['C++', 'Python', 'JavaScript', 'Bash'] },
+  { name: 'web', items: ['HTML5', 'CSS3', 'Node.js', 'Astro'] },
+  { name: 'systems', items: ['Linux', 'Git', 'Docker'] }
+];
+---
+<section class="pane" id="skills" aria-label="Skills">
+  <div class="pane-bar"><span class="pane-path"><b>sergio@elbiti</b>:~/skills</span></div>
+  <div class="pane-body">
+    <h2>skills</h2>
+    <div class="skills-groups">
+      {groups.map((group) => (
+        <div class="skill-group">
+          <h3>{group.name}</h3>
+          <ul>
+            {group.items.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

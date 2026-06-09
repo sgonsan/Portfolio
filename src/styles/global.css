@@ -1,0 +1,368 @@
+/* ============================================================
+   Theme — brutalist terminal multiplexer
+   Palette preserved verbatim from v1. Dark default; light via
+   [data-theme="light"].
+   ============================================================ */
+:root {
+  --bg-color: #0a0a0a;
+  --section-bg: #111111;
+  --card-bg: #161616;
+  --border-color: #2a2a2a;
+  --text-color: #e5e5e5;
+  --text-dim: #888;
+  --accent-color: #ad58df;
+  --accent-secondary: #d091c2;
+  --accent-bg: #3f2a4c;
+  --accent-bg-secondary: #5c396e;
+  --skeleton-base: #1f2228;
+  --skeleton-shine: #2a2f36;
+}
+
+[data-theme="light"] {
+  --bg-color: #f5f5f0;
+  --section-bg: #fafaf7;
+  --card-bg: #ffffff;
+  --border-color: #d4d4cc;
+  --text-color: #1a1a1a;
+  --text-dim: #666;
+  --accent-color: #6b4690;
+  --accent-secondary: #8056a5;
+  --accent-bg: #e0d4ec;
+  --accent-bg-secondary: #c987cf;
+  --skeleton-base: #e8e8e0;
+  --skeleton-shine: #f4f4ec;
+}
+
+/* Utility palette (terminal output colors) */
+.color-green { color: #5fff87; }
+.color-blue { color: #57a6ff; }
+.color-red { color: #ff5f5f; }
+.color-yellow { color: #ffd95f; }
+.color-purple { color: var(--accent-color); }
+[data-theme="light"] .color-green { color: #1a8f3c; }
+[data-theme="light"] .color-blue { color: #1763b8; }
+[data-theme="light"] .color-red { color: #c22f2f; }
+[data-theme="light"] .color-yellow { color: #9a7300; }
+
+/* Fonts */
+@font-face {
+  font-family: 'Poppins';
+  src: url('/assets/fonts/Poppins/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Poppins';
+  src: url('/assets/fonts/Poppins/Poppins-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IntelOneMono';
+  src: url('/assets/fonts/Intel_One_Mono/IntelOneMono-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Reset */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
+}
+
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'IntelOneMono', 'Courier New', monospace;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Faint scanlines give the CRT undertone without harming legibility */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 3px,
+    rgba(127, 127, 127, 0.022) 3px,
+    rgba(127, 127, 127, 0.022) 4px
+  );
+}
+
+h1, h2, h3 {
+  font-family: 'IntelOneMono', monospace;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+p { font-family: 'Poppins', sans-serif; }
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+a:hover {
+  color: var(--accent-secondary);
+  text-decoration: underline;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  z-index: 300;
+  background: var(--accent-color);
+  color: var(--bg-color);
+  padding: 0.5rem 1rem;
+  font-family: 'IntelOneMono', monospace;
+}
+.skip-link:focus {
+  left: 0;
+  text-decoration: none;
+}
+
+/* ============================================================
+   Panes — every section is a terminal window
+   ============================================================ */
+.pane {
+  max-width: 1000px;
+  margin: 1.75rem 1rem;
+  border: 1px solid var(--border-color);
+  background: var(--section-bg);
+  position: relative;
+}
+
+.pane-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.9rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--card-bg);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  user-select: none;
+}
+
+.pane-bar::before {
+  content: "● ● ●";
+  letter-spacing: 0.2em;
+  font-size: 0.55rem;
+  color: var(--border-color);
+}
+
+.pane-bar .pane-path { color: var(--text-dim); }
+.pane-bar .pane-path b {
+  color: var(--accent-color);
+  font-weight: 400;
+}
+
+.pane-body { padding: 1.5rem; }
+
+.pane h2 {
+  font-size: 1.3rem;
+  text-transform: lowercase;
+  margin-bottom: 1.25rem;
+}
+.pane h2::before { content: "> "; color: var(--accent-color); }
+.pane h2::after { content: "/"; color: var(--accent-color); }
+
+/* Staggered boot reveal */
+@keyframes pane-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+main .pane {
+  animation: pane-in 0.45s ease both;
+}
+main .pane:nth-child(1) { animation-delay: 0.05s; }
+main .pane:nth-child(2) { animation-delay: 0.15s; }
+main .pane:nth-child(3) { animation-delay: 0.25s; }
+main .pane:nth-child(4) { animation-delay: 0.35s; }
+main .pane:nth-child(5) { animation-delay: 0.45s; }
+main .pane:nth-child(6) { animation-delay: 0.55s; }
+
+@media (min-width: 1064px) {
+  .pane { margin: 1.75rem auto; }
+}
+
+/* ============================================================
+   Header — sticky path bar
+   ============================================================ */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem 1rem;
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+  font-family: 'IntelOneMono', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+.logo::before { content: "// "; color: var(--text-dim); }
+.logo:hover { color: var(--accent-secondary); text-decoration: none; }
+
+.nav {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+}
+.nav::-webkit-scrollbar { display: none; }
+
+.nav a {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+}
+.nav a::before { content: "["; }
+.nav a::after { content: "]"; }
+.nav a:hover { color: var(--accent-color); text-decoration: none; }
+.nav a[aria-current="true"] {
+  color: var(--accent-color);
+  background: var(--accent-bg);
+}
+
+#theme-toggle {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  font-family: 'IntelOneMono', monospace;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+#theme-toggle:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+.hero-layout {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.hero-img-frame { position: relative; flex-shrink: 0; }
+.hero-img {
+  display: block;
+  width: 132px;
+  height: 132px;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+  filter: grayscale(20%) contrast(1.05);
+  position: relative;
+  z-index: 1;
+}
+/* offset accent slab behind the photo */
+.hero-img-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translate(8px, 8px);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-color);
+}
+
+.hero-greeting {
+  font-family: 'IntelOneMono', monospace;
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  margin-bottom: 0.25rem;
+}
+.hero-greeting::before { content: "$ "; color: var(--accent-color); }
+
+.hero-text h1 {
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  line-height: 1.1;
+  margin-bottom: 0.75rem;
+}
+.hero-text h1::after {
+  content: "_";
+  color: var(--accent-color);
+  animation: blink 1s step-start infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.hero-text > p {
+  opacity: 0.85;
+  max-width: 60ch;
+}
+
+.zen-quote {
+  margin-top: 1.25rem;
+  font-family: 'IntelOneMono', monospace;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  border-left: 2px solid var(--accent-color);
+  padding-left: 0.75rem;
+  min-height: 1.4em;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.zen-quote.visible { opacity: 1; }
+.zen-quote::before { content: "// "; color: var(--accent-color); }
+
+@media (min-width: 768px) {
+  .hero-layout { flex-direction: row; justify-content: space-between; }
+  .hero-text { max-width: 640px; }
+}
+
+/* ============================================================
+   Accessibility
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent-color);
+  color: var(--bg-color);
+}

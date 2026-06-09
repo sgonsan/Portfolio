@@ -1,0 +1,23 @@
+---
+---
+<dialog id="terminal" class="terminal-dialog" aria-label="Interactive terminal">
+  <div class="terminal-inner">
+    <div class="terminal-head">
+      <span>sergio@elbiti: ~ — pseudo-tty</span>
+      <button id="terminal-close" class="terminal-close" type="button">esc to close</button>
+    </div>
+    <div id="terminal-output" class="terminal-output" aria-live="polite"></div>
+    <div class="terminal-input-row">
+      <span class="terminal-prompt" id="terminal-prompt">$</span>
+      <input
+        id="terminal-input"
+        class="terminal-input"
+        type="text"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        aria-label="Terminal command input"
+      >
+    </div>
+  </div>
+</dialog>

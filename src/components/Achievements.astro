@@ -1,0 +1,22 @@
+---
+const achievements = [
+  {
+    title: 'Maxoarte Award 2022 — Other Musical Modalities',
+    description: 'Recognized for innovative music projects exploring new approaches to production and composition.'
+  }
+];
+---
+<section class="pane" id="achievements" aria-label="Achievements">
+  <div class="pane-bar"><span class="pane-path"><b>sergio@elbiti</b>:~/achievements</span></div>
+  <div class="pane-body">
+    <h2>achievements</h2>
+    <ul class="achievement-list">
+      {achievements.map((a) => (
+        <li>
+          <h3>{a.title}</h3>
+          <p>{a.description}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

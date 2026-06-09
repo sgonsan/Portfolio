@@ -1,0 +1,35 @@
+---
+---
+<section class="pane" id="contact" aria-label="Contact">
+  <div class="pane-bar"><span class="pane-path"><b>sergio@elbiti</b>:~/contact</span></div>
+  <div class="pane-body">
+    <h2>contact</h2>
+    <form id="contact-form" class="contact-form" novalidate>
+      <div>
+        <label for="cf-name">name</label>
+        <input id="cf-name" name="name" type="text" maxlength="200" required autocomplete="name">
+        <div class="field-hint"><span class="field-error" data-error-for="name" aria-live="polite"></span></div>
+      </div>
+      <div>
+        <label for="cf-email">email</label>
+        <input id="cf-email" name="email" type="email" maxlength="320" required autocomplete="email">
+        <div class="field-hint"><span class="field-error" data-error-for="email" aria-live="polite"></span></div>
+      </div>
+      <div>
+        <label for="cf-message">message</label>
+        <textarea id="cf-message" name="message" maxlength="5000" required></textarea>
+        <div class="field-hint">
+          <span class="field-error" data-error-for="message" aria-live="polite"></span>
+          <span id="cf-counter">0/5000</span>
+        </div>
+      </div>
+      <!-- Honeypot: hidden from humans, bots fill it -->
+      <div class="hp-field" aria-hidden="true">
+        <label for="cf-website">website</label>
+        <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <button type="submit">send message</button>
+      <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
