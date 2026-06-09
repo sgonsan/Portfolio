@@ -263,6 +263,26 @@ main .pane.revealed::after {
   border-bottom: 1px solid var(--border-color);
 }
 
+/* While the hero is on screen only the theme toggle remains: logo, nav
+   and the header chrome fade out. Managed via html.past-hero (reveal.js);
+   without JS the header is always fully visible. */
+.header {
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.logo, .nav {
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+}
+html.js:not(.past-hero) .header {
+  background: transparent;
+  border-bottom-color: transparent;
+}
+html.js:not(.past-hero) .logo,
+html.js:not(.past-hero) .nav {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+}
+
 .logo {
   font-family: 'IntelOneMono', monospace;
   font-size: 1.1rem;
