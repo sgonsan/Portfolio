@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import request from 'supertest';
-import { buildApp, fakeDb } from './helpers';
+import { buildApp } from './helpers';
 import { createMailer } from '../server/lib/mailer';
 
 describe('healthz', () => {
@@ -171,58 +171,7 @@ describe('site data', () => {
   });
 });
 
-describe('admin auth', () => {
-  beforeEach(() => {
-    process.env.ADMIN_USER = 'admin';
-    process.env.ADMIN_PASS = 'p:ss:word';
-  });
-  afterEach(() => {
-    delete process.env.ADMIN_USER;
-    delete process.env.ADMIN_PASS;
-  });
-
-  const basic = (u, p) => 'Basic ' + Buffer.from(`${u}:${p}`).toString('base64');
-
-  it('returns 503 when credentials are not configured', async () => {
-    delete process.env.ADMIN_USER;
-    delete process.env.ADMIN_PASS;
-    const { app } = buildApp();
-    const res = await request(app).get('/api/admin/contacts');
-    expect(res.status).toBe(503);
-  });
-
-  it('returns 401 without credentials and 403 with wrong ones', async () => {
-    const { app } = buildApp();
-    expect((await request(app).get('/api/admin/contacts')).status).toBe(401);
-    expect(
-      (await request(app).get('/api/admin/contacts').set('Authorization', basic('admin', 'wrong'))).status
-    ).toBe(403);
-  });
-
-  it('accepts a password containing colons', async () => {
-    const { app } = buildApp();
-    const res = await request(app)
-      .get('/api/admin/contacts')
-      .set('Authorization', basic('admin', 'p:ss:word'));
-    expect(res.status).toBe(200);
-  });
-
-  it('escapes CSV formula injection in the export', async () => {
-    const db = fakeDb({
-      contactRows: [{
-        id: 1, name: '=HYPERLINK("http://evil")', email: 'a@b.co',
-        message: '+SUM(A1)', ip: '1.2.3.4', user_agent: 'UA', created_at: '2026-06-09'
-      }]
-    });
-    const { app } = buildApp({ db });
-    const res = await request(app)
-      .get('/api/admin/contacts.csv')
-      .set('Authorization', basic('admin', 'p:ss:word'));
-    expect(res.status).toBe(200);
-    expect(res.text).toContain(`"'=HYPERLINK`);
-    expect(res.text).toContain(`"'+SUM(A1)"`);
-  });
-});
+// Admin auth moved to DB-backed sessions — covered in panel.test.js.
 
 describe('unknown API routes', () => {
   it('returns JSON 404', async () => {

@@ -11,14 +11,18 @@
     "build": "astro build",
     "preview": "astro preview",
     "test": "vitest run",
-    "migrate": "node db/migrate.js"
+    "migrate": "node db/migrate.js",
+    "admin:create": "node scripts/admin-create.js"
   },
   "license": "MIT",
   "dependencies": {
+    "@astrojs/node": "^10.1.4",
+    "bcryptjs": "^3.0.3",
     "compression": "^1.8.0",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
+    "geoip-lite": "^2.0.2",
     "helmet": "^8.1.0",
     "nodemailer": "^8.0.10",
     "pg": "^8.16.0"

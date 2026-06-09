@@ -8,11 +8,25 @@ const { notFound, errorHandler } = require('./middleware/errors');
 const { createContactRouter } = require('./routes/contact');
 const { createScoresRouter } = require('./routes/scores');
 const { createSiteRouter } = require('./routes/site');
-const { createAdminRouter } = require('./routes/admin');
+const { createContentRouter } = require('./routes/content');
+const { createAdminAuthRouter } = require('./routes/adminAuth');
+const { createAdminPanelRouter } = require('./routes/adminPanel');
+const { createAdminAnalyticsRouter } = require('./routes/adminAnalytics');
+const { createTrackRouter } = require('./routes/track');
 
 const ROOT = path.join(__dirname, '..');
 
-function createApp({ db, mailer, github, resolver, env = process.env }) {
+function createApp({
+  db,
+  mailer,
+  github,
+  contentService,
+  authService,
+  analytics,
+  ssrHandler,
+  resolver,
+  env = process.env
+}) {
   const app = express();
 
   // Behind a reverse proxy (Coolify/Traefik) req.ip must come from
@@ -54,18 +68,40 @@ function createApp({ db, mailer, github, resolver, env = process.env }) {
   app.use('/api', limiters.api);
   app.use('/api/contact', createContactRouter({ db, mailer, resolver, limiter: limiters.contact }));
   app.use('/api/scores', createScoresRouter({ db, limiter: limiters.scoresWrite }));
+  app.use('/api/content', createContentRouter({ contentService }));
+  app.use('/api/t', createTrackRouter({ analytics, limiter: limiters.track }));
   app.use('/api', createSiteRouter({ db, github }));
-  app.use('/api/admin', createAdminRouter({ db, limiter: limiters.admin }));
+  app.use('/api/admin/analytics', createAdminAnalyticsRouter({ analytics, authService }));
+  app.use('/api/admin', createAdminAuthRouter({ authService, limiter: limiters.adminLogin, env }));
+  app.use('/api/admin', createAdminPanelRouter({ db, authService, contentService }));
   app.use('/api', notFound);
 
+  // Admin panel SPA shell (static; every data call is session-gated).
+  app.use('/admin', express.static(path.join(__dirname, 'admin-ui')));
+  app.get('/admin/{*splat}', (req, res) =>
+    res.sendFile(path.join(__dirname, 'admin-ui', 'index.html'))
+  );
+
   // Astro build output: hashed assets are immutable.
-  app.use('/_astro', express.static(path.join(ROOT, 'dist/_astro'), {
+  app.use('/_astro', express.static(path.join(ROOT, 'dist/client/_astro'), {
     maxAge: '1y',
     immutable: true
   }));
   app.use('/assets', express.static(path.join(ROOT, 'public/assets'), { maxAge: '30d' }));
-  app.use(express.static(path.join(ROOT, 'dist')));
+  app.use(express.static(path.join(ROOT, 'dist/client')));
   app.use(express.static(path.join(ROOT, 'public')));
+
+  // SSR: Astro renders the page with live content from the service.
+  if (ssrHandler) {
+    app.use(async (req, res, next) => {
+      try {
+        const siteData = await contentService.get();
+        ssrHandler(req, res, next, { siteData });
+      } catch (err) {
+        next(err);
+      }
+    });
+  }
 
   app.use(notFound);
   app.use(errorHandler);

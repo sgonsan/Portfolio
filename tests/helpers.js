@@ -1,4 +1,8 @@
 import { createApp } from '../server/app';
+import { createContentService } from '../server/lib/content';
+import { createAuthService } from '../server/lib/authService';
+import { createAnalytics } from '../server/lib/analytics';
+import { createStatefulDb } from './fakeStores';
 
 export function fakeDb(overrides = {}) {
   const calls = [];
@@ -56,6 +60,40 @@ export function buildApp({
   resolver = okResolver,
   env = {}
 } = {}) {
-  const app = createApp({ db, mailer, github, resolver, env });
-  return { app, db, mailer, github };
+  const contentService = createContentService(db);
+  const authService = createAuthService(db);
+  const analytics = createAnalytics(db, null); // no geoip in unit tests
+  const app = createApp({
+    db, mailer, github, contentService, authService, analytics, resolver, env
+  });
+  return { app, db, mailer, github, contentService, authService, analytics };
+}
+
+// Full-stack variant backed by the stateful in-memory store — auth flows,
+// content persistence and analytics inserts behave like the real tables.
+export async function buildStatefulApp({ env = {} } = {}) {
+  const db = createStatefulDb();
+  const authService = createAuthService(db);
+  const contentService = createContentService(db);
+  const analytics = createAnalytics(db, null);
+  const app = createApp({
+    db,
+    mailer: fakeMailer(),
+    github: fakeGithub(),
+    contentService,
+    authService,
+    analytics,
+    resolver: okResolver,
+    env
+  });
+  // seed one admin account
+  await authService.createUser('admin', 'correct-password');
+  return { app, db, authService, contentService, analytics };
+}
+
+export async function loginAgent(app, username = 'admin', password = 'correct-password') {
+  const request = (await import('supertest')).default;
+  const res = await request(app).post('/api/admin/login').send({ username, password });
+  const cookie = res.headers['set-cookie']?.[0]?.split(';')[0] ?? '';
+  return { res, cookie };
 }

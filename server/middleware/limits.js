@@ -34,12 +34,20 @@ function createLimiters() {
       message: { error: 'Too many score submissions' }
     }),
 
-    // Brute-force shield on admin basic auth.
-    admin: rateLimit({
+    // Brute-force shield on panel login.
+    adminLogin: rateLimit({
       ...base,
       windowMs: 60 * 1000,
-      limit: 10,
+      limit: 5,
       message: { error: 'Too many attempts' }
+    }),
+
+    // Tracking beacons.
+    track: rateLimit({
+      ...base,
+      windowMs: 60 * 1000,
+      limit: 30,
+      message: { error: 'Too many requests' }
     })
   };
 }
