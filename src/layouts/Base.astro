@@ -2,15 +2,26 @@
 import '../styles/global.css';
 import '../styles/sections.css';
 
-interface Props {
-  title?: string;
-  description?: string;
-}
+const { meta = {} } = Astro.props;
+const title = meta.title ?? 'Sergio González Sánchez - Portfolio';
+const description = meta.description ?? '';
+const ogDescription = meta.og_description ?? description;
 
-const {
-  title = 'Sergio González Sánchez - Portfolio',
-  description = 'Portfolio of Sergio González Sánchez, developer specialized in C++ and Python. Explore skills, projects and achievements.'
-} = Astro.props;
+// JSON-LD: escape `<` so editable strings can never break out of the tag.
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Sergio González Sánchez',
+  url: 'https://elbiti.com',
+  image: 'https://elbiti.com/assets/personal-foto.jpg',
+  jobTitle: 'Software Developer',
+  description: ogDescription,
+  sameAs: [
+    'https://github.com/sgonsan',
+    'https://www.linkedin.com/in/sergio-gonsan/'
+  ],
+  knowsAbout: ['C++', 'Python', 'JavaScript', 'HTML5', 'CSS3', 'Bash', 'Linux']
+}).replace(/</g, '\\u003c');
 ---
 
 <!DOCTYPE html>
@@ -22,9 +33,9 @@ const {
   <title>{title}</title>
   <meta name="description" content={description}>
 
-  <!-- Open Graph / WhatsApp -->
+  <!-- Open Graph -->
   <meta property="og:title" content={title} />
-  <meta property="og:description" content="Passionate C++ and Python developer focused on scalable and efficient solutions. Check out my projects and achievements." />
+  <meta property="og:description" content={ogDescription} />
   <meta property="og:image" content="https://elbiti.com/assets/preview.png" />
   <meta property="og:url" content="https://elbiti.com/" />
   <meta property="og:type" content="website" />
@@ -33,51 +44,26 @@ const {
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
-  <meta name="twitter:description" content="Passionate C++ and Python developer focused on scalable and efficient solutions. Explore my projects and achievements." />
+  <meta name="twitter:description" content={ogDescription} />
   <meta name="twitter:image" content="https://elbiti.com/assets/preview.png" />
 
-  <!-- Favicon: modern browsers use the SVG, iOS uses the apple-touch-icon. -->
   <link rel="icon" type="image/svg+xml" href="/assets/icon.svg">
   <link rel="apple-touch-icon" href="/assets/apple-icon.png">
-
-  <!-- Canonical URL -->
   <link rel="canonical" href="https://elbiti.com/">
 
-  <!-- Preload critical font -->
+  <link rel="preload" href="/assets/fonts/Intel_One_Mono/IntelOneMono-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="/assets/fonts/Poppins/Poppins-Regular.ttf" as="font" type="font/ttf" crossorigin>
 
-  <!-- Apply saved theme (or system preference) before paint to avoid flash -->
-  <script is:inline>
-    (function() {
-      const saved = localStorage.getItem('theme');
-      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-      const theme = saved || (prefersLight ? 'light' : 'dark');
-      if (theme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
-    })();
-  </script>
+  <!-- Pre-paint theme. External file: page ships zero inline scripts so the
+       server's strict CSP (script-src 'self') holds. -->
+  <script src="/theme-init.js" is:inline></script>
 
-  <!-- Structured data: Person schema -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": "Sergio González Sánchez",
-    "url": "https://elbiti.com",
-    "image": "https://elbiti.com/assets/personal-foto.jpg",
-    "jobTitle": "Software Developer",
-    "description": "Passionate C++ and Python developer focused on scalable and efficient solutions.",
-    "sameAs": [
-      "https://github.com/sgonsan",
-      "https://www.linkedin.com/in/sergio-gonsan/"
-    ],
-    "knowsAbout": ["C++", "Python", "JavaScript", "HTML5", "CSS3", "Bash", "Linux"]
-  }
-  </script>
+  <!-- Structured data: JSON-LD is a non-executable data block, CSP-safe -->
+  <script type="application/ld+json" is:inline set:html={jsonLd} />
 </head>
 
 <body>
+  <a class="skip-link" href="#main">skip to content</a>
   <slot />
 </body>
 </html>

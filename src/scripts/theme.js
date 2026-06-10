@@ -1,30 +1,25 @@
-// =======================
-// Theme toggle (dark / light)
-// Default follows OS preference, overridden by localStorage.
-// =======================
 export function initThemeToggle() {
-  const toggle = document.getElementById('theme-toggle');
-  if (!toggle) return;
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
 
-  const saved = localStorage.getItem('theme');
-  const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-  const initial = saved || (prefersLight ? 'light' : 'dark');
-  applyTheme(initial);
+  const current = () =>
+    document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
 
-  toggle.addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
-    const next = current === 'light' ? 'dark' : 'light';
-    applyTheme(next);
-    localStorage.setItem('theme', next);
-  });
+  const render = () => {
+    btn.textContent = `[${current()}]`;
+    btn.setAttribute('aria-label', `Switch to ${current() === 'light' ? 'dark' : 'light'} theme`);
+  };
 
-  function applyTheme(theme) {
-    if (theme === 'light') {
+  btn.addEventListener('click', () => {
+    const next = current() === 'light' ? 'dark' : 'light';
+    if (next === 'light') {
       document.documentElement.setAttribute('data-theme', 'light');
-      toggle.textContent = '[ light ]';
     } else {
       document.documentElement.removeAttribute('data-theme');
-      toggle.textContent = '[ dark ]';
     }
-  }
+    try { localStorage.setItem('theme', next); } catch { /* storage blocked */ }
+    render();
+  });
+
+  render();
 }

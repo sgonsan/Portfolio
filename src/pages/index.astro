@@ -9,36 +9,66 @@ import Achievements from '../components/Achievements.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
 import Terminal from '../components/Terminal.astro';
+import { getSiteData } from '../lib/siteData.js';
+
+const { order, content } = await getSiteData(Astro);
+
+const registry = {
+  about: Hero,
+  skills: Skills,
+  projects: Projects,
+  timeline: Timeline,
+  achievements: Achievements,
+  contact: Contact
+};
+
+const sections = order.filter((o) => o.enabled && registry[o.section]);
 ---
 
-<Base>
-  <Header />
-  <main>
-    <Hero />
-    <Skills />
-    <Projects />
-    <Timeline />
-    <Achievements />
-    <Contact />
+<Base meta={content.meta}>
+  <Header sections={sections.map((s) => s.section)} />
+  <main id="main">
+    {sections.map(({ section }) => {
+      const Component = registry[section];
+      return <Component c={content[section]} />;
+    })}
   </main>
-  <Footer />
+  <Footer c={content.footer} />
   <Terminal />
 
   <script>
     import { initThemeToggle } from '../scripts/theme.js';
+    import { initScrollSpy } from '../scripts/nav.js';
+    import { initReveal } from '../scripts/reveal.js';
     import { initSiteData } from '../scripts/siteData.js';
-    import { initProjectsSection } from '../scripts/projects.js';
-    import { initTimeline } from '../scripts/timeline.js';
+    import { initProjects } from '../scripts/projects.js';
     import { initContactForm } from '../scripts/contact.js';
-    import { initTerminal } from '../scripts/terminal.js';
-    import { initEffects } from '../scripts/effects.js';
+    import { initTracking } from '../scripts/track.js';
 
     initThemeToggle();
+    initScrollSpy();
+    initReveal();
     initSiteData();
-    initProjectsSection();
-    initTimeline();
+    initProjects();
     initContactForm();
-    initTerminal();
-    initEffects();
+    initTracking();
+
+    // Terminal is lazy: module loads on first open (button or Ctrl+`)
+    let terminal = null;
+    async function openTerminal() {
+      if (!terminal) {
+        const { initTerminal } = await import('../scripts/terminal.js');
+        terminal = initTerminal();
+      }
+      terminal?.open();
+    }
+
+    document.getElementById('terminal-open')?.addEventListener('click', openTerminal);
+    document.addEventListener('keydown', (event) => {
+      if (event.ctrlKey && event.key === '`') {
+        event.preventDefault();
+        openTerminal();
+      }
+    });
   </script>
 </Base>

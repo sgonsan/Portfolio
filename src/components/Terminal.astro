@@ -1,25 +1,23 @@
 ---
 ---
-<button id="open-terminal" aria-label="Open terminal">&gt;_</button>
-
-<div id="terminal-modal" class="terminal-modal">
-  <div class="terminal-header">
-    <span>Portfolio Terminal</span>
-    <button id="close-terminal" aria-label="Close terminal">[ x ]</button>
+<dialog id="terminal" class="terminal-dialog" aria-label="Interactive terminal">
+  <div class="terminal-inner">
+    <div class="terminal-head">
+      <span>sergio@elbiti: ~ — pseudo-tty</span>
+      <button id="terminal-close" class="terminal-close" type="button">esc to close</button>
+    </div>
+    <div id="terminal-output" class="terminal-output" aria-live="polite"></div>
+    <div class="terminal-input-row">
+      <span class="terminal-prompt" id="terminal-prompt">$</span>
+      <input
+        id="terminal-input"
+        class="terminal-input"
+        type="text"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        aria-label="Terminal command input"
+      >
+    </div>
   </div>
-  <div id="terminal-output" class="terminal-output"></div>
-  <input
-    id="terminal-input"
-    type="text"
-    placeholder="type a command..."
-    autocomplete="off"
-    autocapitalize="off"
-    autocorrect="off"
-    spellcheck="false"
-  />
-  <div id="terminal-controls" class="terminal-controls">
-    <button data-action="tab">⇥</button>
-    <button data-action="up">↑</button>
-    <button data-action="down">↓</button>
-  </div>
-</div>
+</dialog>

@@ -1,29 +1,27 @@
 ---
-import { getCollection } from 'astro:content';
+const { c } = Astro.props;
 
-const entries = await getCollection('timeline');
-const items = entries
-  .map(e => e.data)
-  .sort((a, b) => b.date.localeCompare(a.date));
+const formatDate = (iso) => {
+  const [year, month] = String(iso).split('-');
+  const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+  return `${months[Number(month) - 1] ?? ''} ${year}`.trim();
+};
 ---
-
-<section class="timeline" id="timeline">
-  <h2>timeline</h2>
-  <div id="timeline-list" class="timeline-list">
-    {items.map(item => (
-      <article class="timeline-item">
-        <div class="timeline-dot" aria-hidden="true"></div>
-        <div class="timeline-content">
-          <div class="timeline-date">{item.date}</div>
+<section class="pane" id="timeline" aria-label="Timeline">
+  <div class="pane-bar"><span class="pane-path"><b>sergio@elbiti</b>:{c.path}</span></div>
+  <div class="pane-body">
+    <h2>{c.title}</h2>
+    <ol class="timeline-list">
+      {c.items.map((item) => (
+        <li class="timeline-item">
+          <span class="timeline-date">{formatDate(item.date)}</span>
           <h3>{item.title}</h3>
           <p>{item.description}</p>
-          {item.tags && item.tags.length > 0 && (
-            <div class="timeline-tags">
-              {item.tags.map(t => <span class="timeline-tag">{t}</span>)}
-            </div>
-          )}
-        </div>
-      </article>
-    ))}
+          <ul class="timeline-tags">
+            {item.tags.map((tag) => <li>{tag}</li>)}
+          </ul>
+        </li>
+      ))}
+    </ol>
   </div>
 </section>

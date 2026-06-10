@@ -1,7 +1,8 @@
-/* =======================
-   Theme — brutalist terminal
-   Defaults to dark; light theme via [data-theme="light"]
-   ======================= */
+/* ============================================================
+   Theme — brutalist terminal multiplexer
+   Palette preserved verbatim from v1. Dark default; light via
+   [data-theme="light"].
+   ============================================================ */
 :root {
   --bg-color: #0a0a0a;
   --section-bg: #111111;
@@ -32,12 +33,16 @@
   --skeleton-shine: #f4f4ec;
 }
 
-/* Utility palette */
+/* Utility palette (terminal output colors) */
 .color-green { color: #5fff87; }
 .color-blue { color: #57a6ff; }
 .color-red { color: #ff5f5f; }
 .color-yellow { color: #ffd95f; }
 .color-purple { color: var(--accent-color); }
+[data-theme="light"] .color-green { color: #1a8f3c; }
+[data-theme="light"] .color-blue { color: #1763b8; }
+[data-theme="light"] .color-red { color: #c22f2f; }
+[data-theme="light"] .color-yellow { color: #9a7300; }
 
 /* Fonts */
 @font-face {
@@ -55,13 +60,6 @@
   font-display: swap;
 }
 @font-face {
-  font-family: 'Poppins';
-  src: url('/assets/fonts/Poppins/Poppins-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
   font-family: 'IntelOneMono';
   src: url('/assets/fonts/Intel_One_Mono/IntelOneMono-VariableFont_wght.ttf') format('truetype');
   font-weight: 100 900;
@@ -70,7 +68,7 @@
 }
 
 /* Reset */
-* {
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -78,6 +76,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
 }
 
 body {
@@ -88,92 +87,236 @@ body {
   min-height: 100vh;
 }
 
-/* Headings — all mono, all-caps style */
+/* Faint scanlines give the CRT undertone without harming legibility */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 3px,
+    rgba(127, 127, 127, 0.022) 3px,
+    rgba(127, 127, 127, 0.022) 4px
+  );
+}
+
 h1, h2, h3 {
   font-family: 'IntelOneMono', monospace;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
-h1 {
-  font-size: 1.5rem;
-  color: var(--accent-color);
-}
-
-h2 {
-  font-size: 1.4rem;
-  color: var(--text-color);
-  text-transform: lowercase;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.5rem;
-}
-
-/* Section title marker: `> name/` */
-section h2::before {
-  content: "> ";
-  color: var(--accent-color);
-}
-section h2::after {
-  content: "/";
-  color: var(--accent-color);
-}
-
-p {
-  font-family: 'Poppins', sans-serif;
-}
+p { font-family: 'Poppins', sans-serif; }
 
 a {
   color: var(--accent-color);
   text-decoration: none;
   transition: color 0.15s ease;
 }
-
 a:hover {
   color: var(--accent-secondary);
   text-decoration: underline;
 }
 
-/* Layout */
-section {
-  max-width: 1000px;
-  background: var(--section-bg);
-  padding: 1.5rem;
-  margin: 1.5rem 2rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0;
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  z-index: 300;
+  background: var(--accent-color);
+  color: var(--bg-color);
+  padding: 0.5rem 1rem;
+  font-family: 'IntelOneMono', monospace;
+}
+.skip-link:focus {
+  left: 0;
+  text-decoration: none;
 }
 
-/* Header */
-.header {
+/* ============================================================
+   Panes — every section is a terminal window
+   ============================================================ */
+/* Full-bleed: panes span edge to edge, separated by single horizontal
+   rules. Content stays in a 1000px column via padding-inline max(). */
+.pane {
+  margin: 0;
+  border-top: 1px solid var(--border-color);
+  background: var(--section-bg);
+  position: relative;
+}
+
+.pane-bar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  gap: 0.6rem;
+  padding: 0.45rem max(0.9rem, calc(50% - 500px));
+  border-bottom: 1px solid var(--border-color);
+  background: var(--card-bg);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  user-select: none;
+}
+
+.pane-bar::before {
+  content: "● ● ●";
+  letter-spacing: 0.2em;
+  font-size: 0.55rem;
+  color: var(--border-color);
+}
+
+.pane-bar .pane-path { color: var(--text-dim); }
+.pane-bar .pane-path b {
+  color: var(--accent-color);
+  font-weight: 400;
+}
+
+.pane-body { padding: 2.75rem max(1.5rem, calc(50% - 500px)); }
+
+.pane h2 {
+  font-size: 1.3rem;
+  text-transform: lowercase;
+  margin-bottom: 1.25rem;
+}
+.pane h2::before { content: "> "; color: var(--accent-color); }
+.pane h2::after { content: "/"; color: var(--accent-color); }
+
+/* ============================================================
+   CRT boot — page power-on + per-pane scroll reveal
+   Hidden states only apply under html.js (set by theme-init.js
+   pre-paint), so everything stays visible without JavaScript.
+   ============================================================ */
+
+/* whole page powers on like a CRT: horizontal line, then vertical expand */
+@keyframes crt-on {
+  0% { opacity: 0; transform: scaleY(0.004); }
+  30% { opacity: 1; transform: scaleY(0.004); }
+  55% { transform: scaleY(1.015); }
+  100% { opacity: 1; transform: none; }
+}
+html.js body { animation: crt-on 0.5s ease-out both; }
+
+/* terminal-style hard prints (no easing — lines just appear) */
+@keyframes term-print {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* hero photo flicker (boot only) */
+@keyframes crt-flicker {
+  0% { opacity: 0; }
+  8% { opacity: 1; }
+  16% { opacity: 0.25; }
+  26% { opacity: 1; }
+  34% { opacity: 0.4; }
+  44% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+/* panes below the fold: smooth layered rise (ease-out-expo) */
+@keyframes pane-rise {
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes body-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+html.js main .pane:not(.hero-pane):not(.revealed) { opacity: 0; }
+
+main .pane.revealed {
+  animation: pane-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* body lags a touch behind its frame — adds depth without noise */
+main .pane.revealed .pane-body {
+  animation: body-rise 0.8s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ============================================================
+   Header — fixed overlay path bar
+   ============================================================ */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem 1rem;
   background: var(--bg-color);
   border-bottom: 1px solid var(--border-color);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+}
+
+/* While the hero is on screen only the theme toggle remains: logo, nav
+   and the header chrome fade out. Managed via html.past-hero (reveal.js);
+   without JS the header is always fully visible. */
+.header {
+  transition: background 0.3s ease, border-color 0.3s ease, padding 0.3s ease;
+}
+.logo, .nav {
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+}
+html.js:not(.past-hero) .header {
+  background: transparent;
+  border-bottom-color: transparent;
+  /* mirror the pane-bar metrics so the toggle reads as part of the
+     hero title bar: same row height, same content column */
+  padding: 0.3rem max(0.9rem, calc(50% - 500px));
+}
+html.js:not(.past-hero) .logo,
+html.js:not(.past-hero) .nav {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+}
+html.js:not(.past-hero) #theme-toggle {
+  border-color: transparent;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  padding: 0.18rem 0.45rem;
+}
+html.js:not(.past-hero) #theme-toggle:hover {
+  color: var(--accent-color);
 }
 
 .logo {
   font-family: 'IntelOneMono', monospace;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--accent-color);
   text-transform: lowercase;
-  text-decoration: none;
+  white-space: nowrap;
 }
+.logo::before { content: "// "; color: var(--text-dim); }
+.logo:hover { color: var(--accent-secondary); text-decoration: none; }
 
-.logo:hover {
-  color: var(--accent-secondary);
-  text-decoration: none;
+.nav {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
 }
+.nav::-webkit-scrollbar { display: none; }
 
-.logo::before {
-  content: "// ";
+.nav a {
+  font-size: 0.85rem;
   color: var(--text-dim);
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+}
+.nav a::before { content: "["; }
+.nav a::after { content: "]"; }
+.nav a:hover { color: var(--accent-color); text-decoration: none; }
+.nav a[aria-current="true"] {
+  color: var(--accent-color);
+  background: var(--accent-bg);
 }
 
 #theme-toggle {
@@ -184,107 +327,127 @@ section {
   font-size: 0.85rem;
   padding: 0.3rem 0.7rem;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+  transition: border-color 0.3s ease, color 0.3s ease, font-size 0.3s ease, padding 0.3s ease;
 }
-
 #theme-toggle:hover {
   border-color: var(--accent-color);
   color: var(--accent-color);
 }
 
-/* Hero / About */
-.hero {
+/* ============================================================
+   Hero — full viewport boot screen
+   ============================================================ */
+.hero-pane {
+  min-height: 100svh;
+  border-top: none; /* sits flush against the viewport top */
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 1.5rem;
+}
+.hero-pane .pane-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
+.hero-layout {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+/* boot sequence: lines print one by one, photo flickers in last */
+html.js .hero-pane .pane-bar { animation: term-print 0.01s 0.45s steps(1) both; }
+html.js .hero-greeting { animation: term-print 0.01s 0.7s steps(1) both; }
+html.js .hero-text h1 { animation: term-print 0.01s 0.95s steps(1) both; }
+html.js .hero-text > p:not(.hero-greeting):not(.zen-quote) {
+  animation: term-print 0.01s 1.25s steps(1) both;
+}
+html.js .hero-img-frame { animation: crt-flicker 0.6s 1.5s steps(1) both; }
+html.js .scroll-hint { animation: term-print 0.01s 1.9s steps(1) both, hint-blink 1.4s 1.9s steps(2) infinite; }
+
+.scroll-hint {
+  margin-top: auto;
+  padding: 2rem 0 1rem;
+  font-family: 'IntelOneMono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  align-self: center;
+}
+.scroll-hint::before { content: "▼ "; color: var(--accent-color); }
+@keyframes hint-blink { 50% { opacity: 0.2; } }
+
+.hero-img-frame { position: relative; flex-shrink: 0; }
 .hero-img {
-  width: 120px;
-  height: 120px;
-  border-radius: 0;
+  display: block;
+  width: 132px;
+  height: 132px;
+  object-fit: cover;
   border: 1px solid var(--border-color);
   filter: grayscale(20%) contrast(1.05);
+  position: relative;
+  z-index: 1;
+}
+/* offset accent slab behind the photo */
+.hero-img-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translate(8px, 8px);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-color);
 }
 
 .hero-greeting {
   font-family: 'IntelOneMono', monospace;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text-dim);
-  font-weight: 400;
   margin-bottom: 0.25rem;
 }
-
-.hero-greeting::before {
-  content: "$ ";
-  color: var(--accent-color);
-}
+.hero-greeting::before { content: "$ "; color: var(--accent-color); }
 
 .hero-text h1 {
-  font-size: clamp(1.75rem, 5vw, 2.75rem);
-  color: var(--text-color);
-  text-transform: none;
+  font-size: clamp(2rem, 6.5vw, 4rem);
+  line-height: 1.05;
   margin-bottom: 0.75rem;
-  line-height: 1.1;
 }
-
-/* Blinking cursor after the name */
 .hero-text h1::after {
   content: "_";
   color: var(--accent-color);
   animation: blink 1s step-start infinite;
 }
+@keyframes blink { 50% { opacity: 0; } }
 
-@keyframes blink {
-  50% { opacity: 0; }
-}
-
-.hero-text p {
-  color: var(--text-color);
+.hero-text > p {
   opacity: 0.85;
   max-width: 60ch;
 }
 
 .zen-quote {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
   font-family: 'IntelOneMono', monospace;
   font-size: 0.85rem;
-  font-style: normal;
   color: var(--text-dim);
-  opacity: 0;
-  transition: opacity 0.6s ease;
   border-left: 2px solid var(--accent-color);
   padding-left: 0.75rem;
+  min-height: 1.4em;
+  opacity: 0;
+  transition: opacity 0.6s ease;
 }
-
-.zen-quote.visible {
-  opacity: 1;
-}
-
-.zen-quote::before {
-  content: "// ";
-  color: var(--accent-color);
-}
+.zen-quote.visible { opacity: 1; }
+.zen-quote::before { content: "// "; color: var(--accent-color); }
 
 @media (min-width: 768px) {
-  .hero {
-    flex-direction: row;
-    align-items: flex-start;
-  }
-  .hero-text {
-    max-width: 700px;
-  }
+  .hero-layout { flex-direction: row; justify-content: space-between; align-items: center; }
+  .hero-text { max-width: 640px; }
+  .hero-img { width: 200px; height: 200px; }
 }
 
-@media (min-width: 1064px) {
-  section {
-    margin: 2rem auto;
-  }
-}
-
-/* Respect user's motion preferences */
+/* ============================================================
+   Accessibility
+   ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -294,7 +457,6 @@ section {
   }
 }
 
-/* Keyboard focus indicators */
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
@@ -303,7 +465,6 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
-/* Selection */
 ::selection {
   background: var(--accent-color);
   color: var(--bg-color);

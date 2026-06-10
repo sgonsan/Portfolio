@@ -1,58 +1,69 @@
-// =======================
-// Contact form
-// =======================
-
-function showToast(message, type = 'info') {
-  const existing = document.querySelector('.toast');
-  if (existing) existing.remove();
-
-  const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
-  toast.textContent = message;
-  toast.setAttribute('role', 'alert');
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
-}
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function initContactForm() {
   const form = document.getElementById('contact-form');
-  const submitButton = form.querySelector('button');
+  if (!form) return;
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  const status = document.getElementById('form-status');
+  const counter = document.getElementById('cf-counter');
+  const message = form.elements.message;
+  const button = form.querySelector('button[type="submit"]');
 
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const message = document.getElementById('message').value.trim();
-    const website = document.getElementById('website').value.trim(); // honeypot
+  const setError = (field, text) => {
+    const slot = form.querySelector(`[data-error-for="${field}"]`);
+    if (slot) slot.textContent = text;
+  };
+  const clearErrors = () => ['name', 'email', 'message'].forEach((f) => setError(f, ''));
 
-    if (!name || !email || !message) return showToast('Please fill in all fields', 'error');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast('Please enter a valid email address', 'error');
-    if (message.length > 5000) return showToast('Message is too long (max 5000 characters)', 'error');
-    if (website) return showToast('Error sending: Please try again later', 'error');
+  message.addEventListener('input', () => {
+    counter.textContent = `${message.value.length}/5000`;
+  });
 
-    submitButton.disabled = true;
-    submitButton.textContent = 'Sending...';
+  const validate = () => {
+    clearErrors();
+    let ok = true;
+    if (!form.elements.name.value.trim()) { setError('name', 'required'); ok = false; }
+    const email = form.elements.email.value.trim();
+    if (!email) { setError('email', 'required'); ok = false; }
+    else if (!EMAIL_REGEX.test(email)) { setError('email', 'invalid email'); ok = false; }
+    if (!message.value.trim()) { setError('message', 'required'); ok = false; }
+    return ok;
+  };
 
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    status.className = 'form-status';
+    status.textContent = '';
+    if (!validate()) return;
+
+    button.disabled = true;
+    status.textContent = 'sending...';
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message, website })
+        body: JSON.stringify({
+          name: form.elements.name.value.trim(),
+          email: form.elements.email.value.trim(),
+          message: message.value.trim(),
+          website: form.elements.website.value
+        })
       });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        showToast('Message sent successfully!', 'success');
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        status.className = 'form-status ok';
+        status.textContent = form.dataset.successText || 'message sent — thanks!';
         form.reset();
+        counter.textContent = '0/5000';
       } else {
-        showToast('Error sending: ' + (data.error || 'Please try again later'), 'error');
+        status.className = 'form-status err';
+        status.textContent = data.error || form.dataset.errorText || 'something went wrong';
       }
     } catch {
-      showToast('Error sending message. Please try again later.', 'error');
+      status.className = 'form-status err';
+      status.textContent = 'network error, try again later';
     } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = 'Send';
+      button.disabled = false;
     }
   });
 }

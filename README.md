@@ -1,98 +1,93 @@
-
 <div align="center">
   <img src="public/assets/icon.svg" alt="Project Icon" width="120"/>
-  <h1>Portfolio Web Application</h1>
-  <p>A modern, responsive portfolio website built with Node.js and Express.</p>
+  <h1>Portfolio</h1>
+  <p>Personal portfolio — Astro static frontend served by a hardened Express API.</p>
 </div>
 
 ---
 
-## Table of Contents
+## Stack
 
-- [About](#about)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Environment Variables](#environment-variables)
-- [License](#license)
+- **Frontend:** Astro 6 SSR (Node adapter in middleware mode), vanilla JS, no UI framework
+- **Backend:** Node 22, Express 5, helmet, express-rate-limit
+- **Database:** PostgreSQL (CMS content, section order, admin accounts/sessions, analytics, contacts, leaderboard)
+- **Mail:** nodemailer 8 (contact form)
+- **Tests:** vitest + supertest (dependency-injected fakes, no real DB/SMTP needed)
 
----
+## Admin panel (`/admin`)
 
-## About
+Every visible text on the site, the order and visibility of sections, contact
+messages, analytics and panel accounts are managed from `/admin`:
 
-This project is a personal portfolio web application designed to showcase your projects, skills, and contact information. It is built using Node.js and Express, and serves static assets as well as dynamic project and contact data. The application is ready for deployment and can be easily customized.
+- **Content:** edit any text field or structured list (timeline, skills,
+  achievements). Saving invalidates the SSR cache — changes are live on the
+  next visit.
+- **Sections:** reorder with ↑/↓ and enable/disable whole sections.
+- **Dashboard:** cookie-less analytics — pageviews, daily uniques
+  (sha256(day|ip|ua), raw IPs never stored), per-section visible time,
+  countries (offline geoip), referrers, devices, browsers, OS, languages,
+  hour histogram; all date-ranged. Raw data is purged after 90 days.
+- **Accounts:** DB-backed users with bcrypt hashes; sessions are random
+  tokens stored hashed, HttpOnly + SameSite=Strict cookies, 24 h sliding
+  expiry, 5-failure lockout. Bootstrap the first account with:
 
-## Features
-
-- Responsive and modern UI (light/dark mode, subtle animations, 3D tilt effects)
-- Project showcase with dynamic data (loads project info from GitHub or local JSON)
-- Contact form with email sending (Nodemailer)
-- Rate limiting for contact form to prevent spam
-- Statistics endpoint
-- RESTful API structure
-- Static asset serving (images, fonts, CSS, JS)
-- Mobile optimized
-- Environment variable support
-
-## Project Structure
-
-```text
-prod/
-├── controllers/         # Express controllers for API endpoints
-├── public/              # Static files (HTML, CSS, JS, images, fonts)
-│   ├── assets/          # Images and font files
-│   ├── css/             # Stylesheets
-│   └── js/              # Client-side JavaScript
-├── routes/              # Express route definitions
-├── .env                 # Environment variables (not committed)
-├── .env.example         # Example environment variables
-├── package.json         # Project metadata and dependencies
-├── projects.json        # Project data
-├── stats.json           # Statistics data
-├── server.js            # Main server entry point
-└── README.md            # Project documentation
+```bash
+npm run admin:create -- <username>
 ```
 
-## Installation
+## Project structure
 
-1. **Clone the repository:**
+```text
+server/
+  index.js        # bootstrap (env, real dependencies, listen)
+  app.js          # createApp({ db, mailer, github }) — DI factory used by tests
+  middleware/     # adminAuth (timing-safe), rate limits, error handling
+  routes/         # contact, scores, site data (stats/zen/projects), admin
+  lib/            # pg pool (strict TLS), github client (cached), mailer, sanitize
+src/              # Astro frontend (components, styles, scripts, content)
+public/           # static assets (photo, fonts, icons, theme-init.js)
+db/migrate.js     # idempotent schema migration
+tests/            # API test suite
+```
 
-  ```bash
-  git clone https://github.com/sgonsan/Portfolio.git
-  cd Portfolio/prod
-  ```
+## Development
 
-2. **Install dependencies:**
+```bash
+npm install
+cp .env.example .env   # fill in values
+npm run migrate        # create tables
+npm run dev            # API on :3000, Astro dev server on :4321 (proxies /api)
+```
 
-  ```bash
-  npm install
-  ```
+## Production
 
-3. **Configure environment variables:**
+```bash
+npm run build && npm start   # or use the Dockerfile (non-root, healthcheck on /healthz)
+```
 
-- Copy `.env.example` to `.env` and update the values as needed.
+## Testing
 
-## Usage
+```bash
+npm test
+```
 
-- **Start the server:**
+## Security properties
 
-  ```bash
-  npm start
-  ```
+- Strict CSP (`script-src 'self'`) — the page ships **zero inline scripts**;
+  all dynamic DOM is built with `textContent`/`createElement`, never `innerHTML`.
+- Panel auth: bcrypt password hashes, hashed session tokens, HttpOnly +
+  SameSite=Strict cookies, login rate limit + account lockout, same-origin
+  check on mutations. No credentials in environment variables.
+- CSV export escapes spreadsheet formula injection.
+- Mail headers are stripped of CR/LF; `replyTo` carries the bare address only.
+- `TRUST_PROXY_HOPS` controls `X-Forwarded-For` trust so rate limits can't be spoofed.
+- Postgres TLS verification is always on (`DATABASE_CA_CERT` for private CAs).
+- Per-endpoint rate limits; strict input validation on every mutating route.
 
-- The application will be available at `http://localhost:PORT` (default port is set in `.env`).
+## Environment variables
 
-## Environment Variables
-
-The application uses environment variables for configuration. See `.env.example` for all available options. Typical variables include:
-
-- `PORT` - The port number to run the server on
-- `NODE_ENV` - The environment (development/production)
-- `GITHUB_TOKEN` - (Optional) GitHub API token for project loading
-- `MAIL_USER` - Email address for contact form
-- `MAIL_PASS` - App password for email sending
+See [.env.example](.env.example) for the full annotated list.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+MIT — see [LICENSE](LICENSE).

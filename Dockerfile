@@ -1,24 +1,25 @@
 # Stage 1: build Astro frontend
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 COPY . .
 RUN npm run build
 
 # Stage 2: production runtime
-FROM node:20-alpine
+FROM node:24-alpine
 WORKDIR /app
-COPY package*.json ./
-RUN npm install --omit=dev
-COPY --from=builder /app/dist ./dist
-COPY controllers ./controllers
-COPY routes ./routes
-COPY db ./db
-COPY json ./json
-COPY public ./public
-COPY server.js .
-
 ENV NODE_ENV=production
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+COPY --from=builder /app/dist ./dist
+COPY server ./server
+COPY db ./db
+COPY scripts ./scripts
+COPY public ./public
+
+USER node
 EXPOSE 8080
-CMD ["node", "server.js"]
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+  CMD wget -qO- http://localhost:8080/healthz || exit 1
+CMD ["node", "server/index.js"]

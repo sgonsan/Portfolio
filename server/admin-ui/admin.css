@@ -1,0 +1,158 @@
+:root {
+  --bg-color: #0a0a0a;
+  --section-bg: #111111;
+  --card-bg: #161616;
+  --border-color: #2a2a2a;
+  --text-color: #e5e5e5;
+  --text-dim: #888;
+  --accent-color: #ad58df;
+  --accent-secondary: #d091c2;
+  --accent-bg: #3f2a4c;
+  --green: #5fff87;
+  --red: #ff5f5f;
+  --yellow: #ffd95f;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'IntelOneMono', 'Courier New', monospace;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+h1, h2, h3 { letter-spacing: -0.02em; }
+h2 { font-size: 1.1rem; margin-bottom: 1rem; }
+h2::before { content: "> "; color: var(--accent-color); }
+
+button {
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-color);
+  color: var(--text-color);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.9rem;
+  cursor: pointer;
+}
+button:hover { background: var(--accent-color); color: var(--bg-color); }
+button.ghost { background: transparent; border-color: var(--border-color); }
+button.ghost:hover { border-color: var(--accent-color); color: var(--accent-color); background: transparent; }
+button.danger { border-color: var(--red); background: transparent; color: var(--red); }
+button.danger:hover { background: var(--red); color: var(--bg-color); }
+
+input, textarea, select {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.6rem;
+  width: 100%;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--accent-color); outline: none; }
+textarea { resize: vertical; min-height: 5rem; }
+label { display: block; color: var(--text-dim); font-size: 0.8rem; margin: 0.7rem 0 0.25rem; }
+
+.error { color: var(--red); min-height: 1.3em; font-size: 0.85rem; margin-top: 0.6rem; }
+.ok { color: var(--green); }
+
+/* login */
+.login-box {
+  max-width: 360px;
+  margin: 18vh auto;
+  border: 1px solid var(--border-color);
+  background: var(--section-bg);
+  padding: 2rem;
+}
+.login-box h1 { color: var(--accent-color); font-size: 1.15rem; margin-bottom: 1rem; }
+.login-box button { width: 100%; margin-top: 1.2rem; }
+
+/* shell */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--section-bg);
+  flex-wrap: wrap;
+}
+.topbar .logo { color: var(--accent-color); font-weight: 700; }
+.topbar nav { display: flex; gap: 0.3rem; flex: 1; flex-wrap: wrap; }
+.topbar nav a { color: var(--text-dim); text-decoration: none; padding: 0.2rem 0.4rem; font-size: 0.85rem; }
+.topbar nav a:hover { color: var(--accent-color); }
+.topbar nav a.active { color: var(--accent-color); background: var(--accent-bg); }
+#who { color: var(--text-dim); font-size: 0.8rem; }
+
+main { max-width: 1100px; margin: 1.5rem auto; padding: 0 1.25rem; }
+
+/* dashboard */
+.range-bar { display: flex; gap: 0.6rem; align-items: end; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.range-bar > div { width: auto; }
+.range-bar input { width: auto; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.8rem; margin-bottom: 1.5rem; }
+.stat-card { border: 1px solid var(--border-color); background: var(--card-bg); padding: 0.9rem 1rem; }
+.stat-card .num { font-size: 1.6rem; color: var(--accent-color); font-weight: 700; }
+.stat-card .lbl { color: var(--text-dim); font-size: 0.75rem; }
+
+.panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+.panel { border: 1px solid var(--border-color); background: var(--section-bg); padding: 1rem; }
+.panel h3 { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.7rem; }
+.panel h3::before { content: "# "; color: var(--accent-color); }
+
+.bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; font-size: 0.8rem; }
+.bar-row .bar-label { width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-row .bar-track { flex: 1; background: var(--card-bg); height: 12px; }
+.bar-row .bar-fill { background: var(--accent-color); height: 100%; }
+.bar-row .bar-val { width: 50px; text-align: right; color: var(--text-dim); }
+
+svg.chart { width: 100%; height: 140px; }
+svg.chart polyline { fill: none; stroke: var(--accent-color); stroke-width: 2; }
+svg.chart line { stroke: var(--border-color); }
+
+/* content editor */
+.section-picker { display: flex; gap: 0.6rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+.field-block { margin-bottom: 1rem; }
+.list-item {
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  padding: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+.list-item-head { display: flex; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.4rem; }
+.list-item-head .tools { display: flex; gap: 0.3rem; }
+.save-bar { margin-top: 1.2rem; display: flex; gap: 0.8rem; align-items: center; }
+
+/* tables */
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+th, td { border: 1px solid var(--border-color); padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+th { background: var(--card-bg); color: var(--text-dim); font-weight: 400; }
+td.msg { max-width: 380px; white-space: pre-wrap; word-break: break-word; }
+
+/* sections */
+.order-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.order-row .name { flex: 1; }
+.order-row.disabled .name { color: var(--text-dim); text-decoration: line-through; }
+
+.photo-preview { display: block; max-width: 200px; border-radius: 50%; border: 2px solid var(--border-color); margin-top: .75rem; }
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-color: #f5f5f0; --section-bg: #fafaf7; --card-bg: #ffffff;
+    --border-color: #d4d4cc; --text-color: #1a1a1a; --text-dim: #666;
+    --accent-color: #6b4690; --accent-secondary: #8056a5; --accent-bg: #e0d4ec;
+    --green: #1a8f3c; --red: #c22f2f; --yellow: #9a7300;
+  }
+}

@@ -1,6 +1,11 @@
 ---
+const { sections = [] } = Astro.props;
+// nav skips "about" label collision none; labels mirror section keys
 ---
 <header class="header">
-  <a href="#about" class="logo">portfolio</a>
-  <button id="theme-toggle" aria-label="Toggle theme">[ dark ]</button>
+  <a class="logo" href="#about">elbiti</a>
+  <nav class="nav" aria-label="Sections">
+    {sections.map((key) => <a href={`#${key}`}>{key}</a>)}
+  </nav>
+  <button id="theme-toggle" type="button" aria-live="polite">[theme]</button>
 </header>

@@ -1,76 +1,86 @@
-// =======================
-// Projects section
-// =======================
+// Project cards from /api/projects. Built exclusively with createElement
+// and textContent so API data can never inject markup.
 
-export function initProjectsSection() {
-  const container = document.getElementById('projects-grid');
-  showProjectPlaceholders(6);
+function skeletonCard() {
+  const card = document.createElement('div');
+  card.className = 'skeleton-card';
+  for (const width of ['w-60', 'w-90', 'w-75', 'w-40']) {
+    const line = document.createElement('div');
+    line.className = `skeleton-line ${width}`;
+    card.appendChild(line);
+  }
+  return card;
+}
 
-  fetch('/api/projects')
-    .then(res => res.json())
-    .then(projects => {
-      container.removeAttribute('aria-busy');
-      container.innerHTML = "";
+function relativeTime(iso) {
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+  if (!Number.isFinite(days) || days < 0) return '';
+  if (days === 0) return 'today';
+  if (days < 30) return `${days}d ago`;
+  if (days < 365) return `${Math.floor(days / 30)}mo ago`;
+  return `${Math.floor(days / 365)}y ago`;
+}
 
-      projects.forEach((proj) => {
-        const card = document.createElement('a');
-        card.className = 'project-card';
-        card.href = proj.html_url;
-        card.target = '_blank';
-        card.rel = 'noopener noreferrer';
+function projectCard(project) {
+  const card = document.createElement('a');
+  card.className = 'project-card';
+  card.href = project.url;
+  card.target = '_blank';
+  card.rel = 'noopener noreferrer';
 
-        const title = document.createElement('h3');
-        title.textContent = proj.name || '';
+  const title = document.createElement('h3');
+  title.textContent = project.name;
 
-        const desc = document.createElement('p');
-        desc.textContent = proj.description || 'No description available.';
+  const desc = document.createElement('p');
+  desc.textContent = project.description || 'No description yet.';
 
-        card.appendChild(title);
-        card.appendChild(desc);
+  const meta = document.createElement('div');
+  meta.className = 'project-meta';
 
-        const metaParts = [];
-        if (proj.lang) metaParts.push(proj.lang);
-        if (typeof proj.stars === 'number') metaParts.push(`★ ${proj.stars}`);
-        if (proj.updated) {
-          const d = new Date(proj.updated);
-          if (!isNaN(d)) metaParts.push(`upd ${d.toISOString().slice(0, 10)}`);
-        }
-        if (metaParts.length) {
-          const meta = document.createElement('div');
-          meta.className = 'project-meta-inline';
-          meta.textContent = metaParts.join(' · ');
-          card.appendChild(meta);
-        }
+  if (project.lang) {
+    const lang = document.createElement('span');
+    const dot = document.createElement('span');
+    dot.className = 'lang-dot';
+    dot.dataset.lang = project.lang;
+    lang.append(dot, project.lang);
+    meta.appendChild(lang);
+  }
 
-        container.appendChild(card);
-      });
-    })
-    .catch(err => {
-      console.error('Error loading projects:', err);
-      container.removeAttribute('aria-busy');
-      container.innerHTML = `
-        <div class="project-card project-card--error">
-          <h3>couldn't load projects</h3>
-          <p>Please try again later.</p>
-        </div>
-      `;
-    });
+  const stars = document.createElement('span');
+  stars.textContent = `★ ${project.stars ?? 0}`;
+  meta.appendChild(stars);
 
-  function showProjectPlaceholders(count = 6) {
-    container.innerHTML = "";
-    container.setAttribute('aria-busy', 'true');
-    for (let i = 0; i < count; i++) {
-      const skel = document.createElement('div');
-      skel.className = 'project-card skeleton';
-      skel.innerHTML = `
-        <div class="skel-title"></div>
-        <div class="skel-text"></div>
-        <div class="skel-text"></div>
-        <div class="skel-text"></div>
-        <div class="skel-text short"></div>
-        <div class="skel-link"></div>
-      `;
-      container.appendChild(skel);
-    }
+  const updated = relativeTime(project.updated);
+  if (updated) {
+    const time = document.createElement('span');
+    time.textContent = `updated ${updated}`;
+    meta.appendChild(time);
+  }
+
+  card.append(title, desc, meta);
+  return card;
+}
+
+export async function initProjects() {
+  const grid = document.getElementById('projects-grid');
+  if (!grid) return;
+
+  grid.replaceChildren(...Array.from({ length: 6 }, skeletonCard));
+
+  try {
+    const res = await fetch('/api/projects');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const projects = await res.json();
+    if (!Array.isArray(projects) || projects.length === 0) throw new Error('empty');
+
+    const sorted = [...projects].sort((a, b) => new Date(b.updated) - new Date(a.updated));
+    grid.replaceChildren(...sorted.map(projectCard));
+  } catch {
+    const error = document.createElement('p');
+    error.className = 'projects-error';
+    error.textContent = grid.dataset.errorText || 'could not load projects';
+    grid.replaceChildren(error);
+  } finally {
+    grid.setAttribute('aria-busy', 'false');
   }
 }
