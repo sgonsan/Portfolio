@@ -17,9 +17,11 @@
   "license": "MIT",
   "dependencies": {
     "@astrojs/node": "^10.1.4",
+    "astro": "^6.4.5",
     "bcryptjs": "^3.0.3",
     "compression": "^1.8.0",
     "dotenv": "^17.2.1",
+    "es-module-lexer": "^2.1.0",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
     "geoip-lite": "^2.0.2",
@@ -31,7 +33,6 @@
     "shell-quote": "^1.8.4"
   },
   "devDependencies": {
-    "astro": "^6.4.5",
     "concurrently": "^9.0.0",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.0",
