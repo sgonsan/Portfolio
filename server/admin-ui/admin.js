@@ -77,13 +77,17 @@ const routes = {
   '#/photo': renderPhoto
 };
 
+let activeHash = '#/dashboard';
+
 function route() {
   const hash = routes[location.hash] ? location.hash : '#/dashboard';
+  activeHash = hash;
   document.querySelectorAll('#tabs a').forEach((a) => {
     a.classList.toggle('active', a.getAttribute('href') === hash);
   });
   view().replaceChildren(el('p', { class: 'dim', text: 'loading...' }));
   routes[hash]().catch((err) => {
+    if (activeHash !== hash) return;
     if (err.message !== 'unauthorized') {
       view().replaceChildren(el('p', { class: 'error', text: err.message }));
     }
@@ -153,6 +157,7 @@ async function renderDashboard() {
       api(`/analytics/top${qs()}&dim=lang`)
     ]);
 
+  if (activeHash !== '#/dashboard') return;
   const fromInput = el('input', { type: 'date', value: range.from });
   const toInput = el('input', { type: 'date', value: range.to });
 
@@ -262,6 +267,7 @@ function collectFields(container) {
 
 async function renderContent() {
   contentCache = await api('/content');
+  if (activeHash !== '#/content') return;
   const sections = Object.keys(contentCache.content);
   const current = sections.includes(location.hash.split('?sec=')[1]) ? location.hash.split('?sec=')[1] : sections[0];
 
@@ -314,6 +320,7 @@ async function renderContent() {
 // ---------------- sections order ----------------
 async function renderSections() {
   const data = await api('/content');
+  if (activeHash !== '#/sections') return;
   let order = data.order.map((o) => ({ section_key: o.section, enabled: o.enabled }));
   const status = el('p', { class: 'error' });
   const list = el('div');
@@ -367,6 +374,7 @@ async function renderSections() {
 // ---------------- contacts ----------------
 async function renderContacts() {
   const rows = await api('/contacts');
+  if (activeHash !== '#/contacts') return;
   view().replaceChildren(
     el('h2', { text: 'contacts' }),
     el('p', {}, el('a', { href: '/api/admin/contacts.csv', text: 'download csv' })),
@@ -389,6 +397,7 @@ async function renderContacts() {
 // ---------------- accounts ----------------
 async function renderAccounts() {
   const users = await api('/users');
+  if (activeHash !== '#/accounts') return;
   const status = el('p', { class: 'error' });
 
   const userRow = (u) => el('tr', {},
