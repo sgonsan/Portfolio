@@ -10,7 +10,7 @@ function createTrackRouter({ analytics, limiter }) {
   router.post('/pv', asyncWrap(async (req, res) => {
     const { lang, vw, ref } = req.body || {};
     const id = await analytics.recordPageview({
-      ip: req.ip || '',
+      ip: req.clientIp || req.ip || '',
       ua: req.headers['user-agent'] || '',
       ref,
       lang,

@@ -23,7 +23,7 @@ function createAdminAuthRouter({ authService, limiter, env = process.env }) {
     if (typeof username !== 'string' || typeof password !== 'string') {
       return res.status(400).json({ error: 'Missing credentials' });
     }
-    const result = await authService.login(username, password, req.ip || null);
+    const result = await authService.login(username, password, req.clientIp || req.ip || null);
     if (result?.locked) {
       return res.status(423).json({ error: 'Account temporarily locked' });
     }

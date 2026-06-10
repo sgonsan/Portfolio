@@ -1,8 +1,11 @@
-const rateLimit = require('express-rate-limit');
+const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 
 const base = {
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  // Key on the real visitor IP (set by the clientIp middleware) rather than
+  // the proxy IP. ipKeyGenerator normalizes IPv6 into a stable /64 key.
+  keyGenerator: (req) => ipKeyGenerator(req.clientIp || req.ip)
 };
 
 // Factory so each app instance gets independent counters (and tests stay isolated).

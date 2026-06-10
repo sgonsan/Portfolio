@@ -68,7 +68,7 @@ function createContactRouter({ db, mailer, resolver, limiter }) {
 
     // Log to DB; a DB failure must not block the mail.
     try {
-      const ip = req.ip || null;
+      const ip = req.clientIp || req.ip || null;
       const userAgent = (req.headers['user-agent'] || '').slice(0, 500) || null;
       await db.query(
         'INSERT INTO contacts (name, email, message, ip, user_agent) VALUES ($1, $2, $3, $4, $5)',
