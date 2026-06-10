@@ -68,6 +68,8 @@ $('logout').addEventListener('click', async () => {
 });
 
 // ---------------- router ----------------
+// stale() is a closure: returns true if a newer route() call has superseded this one.
+// Each render function receives stale and must call it before touching the DOM after any await.
 const routes = {
   '#/dashboard': renderDashboard,
   '#/content': renderContent,
@@ -77,17 +79,18 @@ const routes = {
   '#/photo': renderPhoto
 };
 
-let activeHash = '#/dashboard';
+let routeGen = 0;
 
 function route() {
   const hash = routes[location.hash] ? location.hash : '#/dashboard';
-  activeHash = hash;
+  const gen = ++routeGen;
+  const stale = () => gen !== routeGen;
   document.querySelectorAll('#tabs a').forEach((a) => {
     a.classList.toggle('active', a.getAttribute('href') === hash);
   });
   view().replaceChildren(el('p', { class: 'dim', text: 'loading...' }));
-  routes[hash]().catch((err) => {
-    if (activeHash !== hash) return;
+  routes[hash](stale).catch((err) => {
+    if (stale()) return;
     if (err.message !== 'unauthorized') {
       view().replaceChildren(el('p', { class: 'error', text: err.message }));
     }
@@ -142,7 +145,7 @@ function lineChart(rows) {
   return svg;
 }
 
-async function renderDashboard() {
+async function renderDashboard(stale) {
   const [summary, series, hours, sections, countries, referrers, devices, browsers, oses, langs] =
     await Promise.all([
       api(`/analytics/summary${qs()}`),
@@ -157,7 +160,7 @@ async function renderDashboard() {
       api(`/analytics/top${qs()}&dim=lang`)
     ]);
 
-  if (activeHash !== '#/dashboard') return;
+  if (stale()) return;
   const fromInput = el('input', { type: 'date', value: range.from });
   const toInput = el('input', { type: 'date', value: range.to });
 
@@ -265,9 +268,9 @@ function collectFields(container) {
   return fields;
 }
 
-async function renderContent() {
+async function renderContent(stale) {
   contentCache = await api('/content');
-  if (activeHash !== '#/content') return;
+  if (stale()) return;
   const sections = Object.keys(contentCache.content);
   const current = sections.includes(location.hash.split('?sec=')[1]) ? location.hash.split('?sec=')[1] : sections[0];
 
@@ -318,9 +321,9 @@ async function renderContent() {
 }
 
 // ---------------- sections order ----------------
-async function renderSections() {
+async function renderSections(stale) {
   const data = await api('/content');
-  if (activeHash !== '#/sections') return;
+  if (stale()) return;
   let order = data.order.map((o) => ({ section_key: o.section, enabled: o.enabled }));
   const status = el('p', { class: 'error' });
   const list = el('div');
@@ -372,9 +375,9 @@ async function renderSections() {
 }
 
 // ---------------- contacts ----------------
-async function renderContacts() {
+async function renderContacts(stale) {
   const rows = await api('/contacts');
-  if (activeHash !== '#/contacts') return;
+  if (stale()) return;
   view().replaceChildren(
     el('h2', { text: 'contacts' }),
     el('p', {}, el('a', { href: '/api/admin/contacts.csv', text: 'download csv' })),
@@ -395,9 +398,9 @@ async function renderContacts() {
 }
 
 // ---------------- accounts ----------------
-async function renderAccounts() {
+async function renderAccounts(stale) {
   const users = await api('/users');
-  if (activeHash !== '#/accounts') return;
+  if (stale()) return;
   const status = el('p', { class: 'error' });
 
   const userRow = (u) => el('tr', {},
@@ -466,7 +469,7 @@ async function renderAccounts() {
 }
 
 // ---------------- photo ----------------
-async function renderPhoto() {
+async function renderPhoto(_stale) {
   const bust = Date.now();
   const img = el('img', { src: `/assets/personal-foto.jpg?v=${bust}`, alt: 'profile photo', class: 'photo-preview' });
   const fileInput = el('input', { type: 'file', id: 'photo-file', accept: 'image/jpeg,image/png,image/webp' });
