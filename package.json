@@ -27,7 +27,8 @@
     "geoip-lite": "^2.0.2",
     "helmet": "^8.1.0",
     "nodemailer": "^8.0.10",
-    "pg": "^8.16.0"
+    "pg": "^8.16.0",
+    "sharp": "^0.35.0"
   },
   "overrides": {
     "shell-quote": "^1.8.4"

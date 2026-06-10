@@ -4,6 +4,7 @@
 const path = require('path');
 const fs = require('fs').promises;
 const express = require('express');
+const sharp = require('sharp');
 const { asyncWrap } = require('../middleware/errors');
 const { requireSession } = require('../middleware/session');
 const { csvCell } = require('../lib/sanitize');
@@ -91,13 +92,33 @@ function createAdminPanelRouter({ db, authService, contentService }) {
       if (!Buffer.isBuffer(req.body) || req.body.length < 16) return res.status(400).json({ error: 'empty or corrupt file' });
       if (!validImageMagic(req.body, mime)) return res.status(400).json({ error: 'file content does not match declared type' });
 
-      const tmp  = path.join(ASSETS_DIR, 'personal-foto.tmp');
+      const destTmp = path.join(ASSETS_DIR, 'personal-foto.tmp.jpg');
+      const lowTmp  = path.join(ASSETS_DIR, 'personal-foto-low-res.tmp.jpg');
       const dest = path.join(ASSETS_DIR, 'personal-foto.jpg');
       const low  = path.join(ASSETS_DIR, 'personal-foto-low-res.jpg');
 
-      await fs.writeFile(tmp, req.body);
-      await fs.rename(tmp, dest);
-      await fs.copyFile(dest, low);
+      // Re-encode rather than store the upload verbatim: .rotate() bakes in the
+      // EXIF orientation and sharp drops all other metadata by default, so no
+      // GPS/camera EXIF survives. Output is normalized JPEG at the two widths
+      // the page's srcset requests (800w full, 400w low-res placeholder).
+      try {
+        await sharp(req.body)
+          .rotate()
+          .resize({ width: 800, height: 800, fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: 82, mozjpeg: true })
+          .toFile(destTmp);
+        await sharp(req.body)
+          .rotate()
+          .resize({ width: 400, height: 400, fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: 50, mozjpeg: true })
+          .toFile(lowTmp);
+      } catch {
+        await Promise.allSettled([fs.rm(destTmp, { force: true }), fs.rm(lowTmp, { force: true })]);
+        return res.status(400).json({ error: 'could not process image' });
+      }
+
+      await fs.rename(destTmp, dest);
+      await fs.rename(lowTmp, low);
 
       res.json({ ok: true });
     })
