@@ -83,7 +83,7 @@ describe('POST /api/contact', () => {
   });
 
   it('keys the rate limiter on CF-Connecting-IP, not the shared proxy IP', async () => {
-    const { app } = buildApp();
+    const { app } = buildApp({ env: { TRUST_CF_CONNECTING_IP: 'true' } });
     const body = { name: 'A', email: 'a@example.com', message: 'hi' };
     const send = (ip) => request(app).post('/api/contact').set('CF-Connecting-IP', ip).send(body);
     // Two distinct visitors share one proxy socket (same req.ip) but must get
@@ -93,8 +93,17 @@ describe('POST /api/contact', () => {
     expect((await send('203.0.113.2')).status).toBe(200); // different visitor → own bucket
   });
 
+  it('ignores spoofed CF-Connecting-IP by default (fail closed)', async () => {
+    const { app } = buildApp(); // no trust config
+    const body = { name: 'A', email: 'a@example.com', message: 'hi' };
+    const send = (ip) => request(app).post('/api/contact').set('CF-Connecting-IP', ip).send(body);
+    // Rotating the (untrusted) header must NOT mint a fresh bucket.
+    expect((await send('203.0.113.1')).status).toBe(200);
+    expect((await send('9.9.9.9')).status).toBe(429);
+  });
+
   it('logs the real client IP (CF-Connecting-IP) on the contact row', async () => {
-    const { app, db } = buildApp();
+    const { app, db } = buildApp({ env: { TRUST_CF_CONNECTING_IP: 'true' } });
     await request(app).post('/api/contact')
       .set('CF-Connecting-IP', '203.0.113.7')
       .send({ name: 'A', email: 'a@example.com', message: 'hi' });

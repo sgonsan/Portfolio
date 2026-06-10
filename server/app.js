@@ -3,7 +3,7 @@ const express = require('express');
 const helmet = require('helmet');
 const compression = require('compression');
 
-const { clientIp } = require('./lib/clientIp');
+const { createClientIp } = require('./lib/clientIp');
 const { createLimiters } = require('./middleware/limits');
 const { notFound, errorHandler } = require('./middleware/errors');
 const { createContactRouter } = require('./routes/contact');
@@ -37,8 +37,9 @@ function createApp({
   app.set('trust proxy', Number.isInteger(hops) && hops > 0 ? hops : false);
   app.disable('x-powered-by');
 
-  // Resolve the real visitor IP once (CF-Connecting-IP, else req.ip) so rate
-  // limiting, contact logging and analytics all key on the same value.
+  // Resolve the real visitor IP once (verified CF-Connecting-IP, else req.ip)
+  // so rate limiting, contact logging and analytics all key on the same value.
+  const clientIp = createClientIp(env);
   app.use((req, res, next) => {
     req.clientIp = clientIp(req);
     next();
