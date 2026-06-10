@@ -15,6 +15,7 @@ RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=builder /app/dist ./dist
 COPY server ./server
 COPY db ./db
+COPY scripts ./scripts
 COPY public ./public
 
 USER node
