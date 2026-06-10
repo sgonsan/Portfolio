@@ -54,9 +54,35 @@ function rangeFromQuery(query) {
 function createAnalytics(db, geo) {
   if (geo === undefined) geo = require('geoip-lite');
 
+  // Pageview ids handed to the browser are signed so the section-view beacon
+  // can't be replayed against arbitrary ids to inflate stats. The key is
+  // ephemeral (per process): a restart invalidates outstanding tokens, which
+  // is fine since they only need to live for a single page visit.
+  const tokenSecret = crypto.randomBytes(32);
+
+  function signPageview(id) {
+    const mac = crypto.createHmac('sha256', tokenSecret).update(String(id)).digest('hex').slice(0, 32);
+    return `${id}.${mac}`;
+  }
+
+  function verifyPageview(token) {
+    if (typeof token !== 'string' || !token.includes('.')) return null;
+    const dot = token.indexOf('.');
+    const idPart = token.slice(0, dot);
+    const sig = token.slice(dot + 1);
+    const id = Number(idPart);
+    if (!Number.isInteger(id) || id <= 0) return null;
+    const expected = crypto.createHmac('sha256', tokenSecret).update(String(id)).digest('hex').slice(0, 32);
+    if (sig.length !== expected.length) return null;
+    if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
+    return id;
+  }
+
   return {
     visitorHash,
     parseUa,
+    signPageview,
+    verifyPageview,
 
     async recordPageview({ ip, ua, ref, lang, vw }) {
       const { device, browser, os } = parseUa(ua);
@@ -75,12 +101,13 @@ function createAnalytics(db, geo) {
           device, browser, os, safeLang, viewport
         ]
       );
-      return rows[0].id;
+      // Return a signed token, not the raw row id.
+      return signPageview(rows[0].id);
     },
 
-    async recordSections(pageviewId, sections, scroll) {
-      const id = Number(pageviewId);
-      if (!Number.isInteger(id) || id <= 0) return { error: 'bad id' };
+    async recordSections(pageviewToken, sections, scroll) {
+      const id = verifyPageview(pageviewToken);
+      if (id === null) return { error: 'bad token' };
       if (!Array.isArray(sections) || sections.length > 20) return { error: 'bad sections' };
       const pct = Number.isInteger(scroll) && scroll >= 0 && scroll <= 100 ? scroll : null;
       for (const s of sections) {

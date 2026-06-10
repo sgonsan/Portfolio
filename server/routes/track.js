@@ -21,7 +21,7 @@ function createTrackRouter({ analytics, limiter }) {
 
   router.post('/sv', asyncWrap(async (req, res) => {
     const { id, sections, scroll } = req.body || {};
-    const result = await analytics.recordSections(Number(id), sections, scroll);
+    const result = await analytics.recordSections(id, sections, scroll);
     if (result.error) console.warn('Rejected section beacon:', result.error);
     res.status(204).end();
   }));
