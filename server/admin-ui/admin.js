@@ -73,7 +73,8 @@ const routes = {
   '#/content': renderContent,
   '#/sections': renderSections,
   '#/contacts': renderContacts,
-  '#/accounts': renderAccounts
+  '#/accounts': renderAccounts,
+  '#/photo': renderPhoto
 };
 
 function route() {
@@ -447,6 +448,53 @@ async function renderAccounts() {
               await api('/users', { method: 'POST', body: { username: newUser.value.trim(), password: newPass.value } });
               route();
             } catch (err) { status.textContent = err.message; }
+          }
+        }),
+        status
+      )
+    )
+  );
+}
+
+// ---------------- photo ----------------
+async function renderPhoto() {
+  const bust = Date.now();
+  const img = el('img', { src: `/assets/personal-foto.jpg?v=${bust}`, alt: 'profile photo', class: 'photo-preview' });
+  const fileInput = el('input', { type: 'file', id: 'photo-file', accept: 'image/jpeg,image/png,image/webp' });
+  const status = el('p', { class: 'error' });
+
+  view().replaceChildren(
+    el('h2', { text: 'photo' }),
+    el('div', { class: 'panel' },
+      el('p', { class: 'dim', text: 'current profile photo' }),
+      img
+    ),
+    el('div', { class: 'panel' },
+      el('label', { for: 'photo-file', text: 'replace photo — JPEG / PNG / WebP, max 8 MB' }),
+      fileInput,
+      el('div', { class: 'save-bar' },
+        el('button', {
+          text: 'upload',
+          onclick: async () => {
+            status.className = 'error';
+            status.textContent = '';
+            const file = fileInput.files[0];
+            if (!file) { status.textContent = 'select a file first'; return; }
+            try {
+              const res = await fetch('/api/admin/photo', {
+                method: 'POST',
+                headers: { 'Content-Type': file.type },
+                body: file
+              });
+              if (res.status === 401) { showLogin(); return; }
+              const data = await res.json();
+              if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+              status.className = 'ok';
+              status.textContent = 'uploaded — live now';
+              img.src = `/assets/personal-foto.jpg?v=${Date.now()}`;
+            } catch (err) {
+              status.textContent = err.message;
+            }
           }
         }),
         status
