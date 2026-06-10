@@ -28,6 +28,24 @@ function createAdminAnalyticsRouter({ analytics, authService }) {
     res.json(await analytics.sectionStats(req.query));
   }));
 
+  // Aggregated endpoint: replaces 10 individual calls with 1 round trip.
+  router.get('/dashboard', asyncWrap(async (req, res) => {
+    const [summary, series, hours, sections, countries, referrers, devices, browsers, oses, langs] =
+      await Promise.all([
+        analytics.summary(req.query),
+        analytics.timeseries(req.query),
+        analytics.hourHistogram(req.query),
+        analytics.sectionStats(req.query),
+        analytics.topDimension('country', req.query),
+        analytics.topDimension('referrer_host', req.query),
+        analytics.topDimension('device', req.query),
+        analytics.topDimension('browser', req.query),
+        analytics.topDimension('os', req.query),
+        analytics.topDimension('lang', req.query),
+      ]);
+    res.json({ summary, series, hours, sections, countries, referrers, devices, browsers, oses, langs });
+  }));
+
   return router;
 }
 

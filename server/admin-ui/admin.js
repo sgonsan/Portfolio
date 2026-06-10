@@ -146,19 +146,8 @@ function lineChart(rows) {
 }
 
 async function renderDashboard(stale) {
-  const [summary, series, hours, sections, countries, referrers, devices, browsers, oses, langs] =
-    await Promise.all([
-      api(`/analytics/summary${qs()}`),
-      api(`/analytics/timeseries${qs()}`),
-      api(`/analytics/hours${qs()}`),
-      api(`/analytics/sections${qs()}`),
-      api(`/analytics/top${qs()}&dim=country`),
-      api(`/analytics/top${qs()}&dim=referrer_host`),
-      api(`/analytics/top${qs()}&dim=device`),
-      api(`/analytics/top${qs()}&dim=browser`),
-      api(`/analytics/top${qs()}&dim=os`),
-      api(`/analytics/top${qs()}&dim=lang`)
-    ]);
+  const { summary, series, hours, sections, countries, referrers, devices, browsers, oses, langs } =
+    await api(`/analytics/dashboard${qs()}`);
 
   if (stale()) return;
   const fromInput = el('input', { type: 'date', value: range.from });

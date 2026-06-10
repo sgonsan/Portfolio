@@ -99,20 +99,21 @@ function createAnalytics(db, geo) {
 
     async summary(query) {
       const { from, to } = rangeFromQuery(query);
-      const { rows } = await db.query(
-        `SELECT COUNT(*)::int AS views,
-                COUNT(DISTINCT visitor_hash)::int AS uniques
-         FROM analytics_pageviews WHERE ts BETWEEN $1 AND $2`,
-        [from, to]
-      );
-      const timeRes = await db.query(
-        `SELECT COALESCE(AVG(sv.time_ms), 0)::int AS avg_section_ms
-         FROM analytics_section_views sv
-         JOIN analytics_pageviews pv ON pv.id = sv.pageview_id
-         WHERE pv.ts BETWEEN $1 AND $2`,
-        [from, to]
-      );
-      return { ...rows[0], avgSectionMs: timeRes.rows[0].avg_section_ms, from, to };
+      const [pvRes, timeRes] = await Promise.all([
+        db.query(
+          `SELECT COUNT(*)::int AS views, COUNT(DISTINCT visitor_hash)::int AS uniques
+           FROM analytics_pageviews WHERE ts BETWEEN $1 AND $2`,
+          [from, to]
+        ),
+        db.query(
+          `SELECT COALESCE(AVG(sv.time_ms), 0)::int AS avg_section_ms
+           FROM analytics_section_views sv
+           JOIN analytics_pageviews pv ON pv.id = sv.pageview_id
+           WHERE pv.ts BETWEEN $1 AND $2`,
+          [from, to]
+        )
+      ]);
+      return { ...pvRes.rows[0], avgSectionMs: timeRes.rows[0].avg_section_ms, from, to };
     },
 
     async timeseries(query) {
