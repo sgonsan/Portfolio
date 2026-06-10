@@ -3,7 +3,8 @@ const { Pool } = require('pg');
 // TLS always verifies certificates. For servers with a private CA, supply it
 // via DATABASE_CA_CERT instead of disabling verification.
 function buildSslConfig(env = process.env) {
-  if (env.DATABASE_SSL !== 'true') return false;
+  const flag = String(env.DATABASE_SSL ?? '').trim().toLowerCase();
+  if (!['true', '1', 'require', 'on', 'yes'].includes(flag)) return false;
   return env.DATABASE_CA_CERT ? { ca: env.DATABASE_CA_CERT } : true;
 }
 
