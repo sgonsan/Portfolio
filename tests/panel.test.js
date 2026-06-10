@@ -42,6 +42,37 @@ describe('panel auth', () => {
     expect(result).toEqual({ locked: true });
   });
 
+  it('allows login after 4 failures; only the 5th trips the lock', async () => {
+    const { authService } = await buildStatefulApp();
+    for (let i = 0; i < 4; i++) {
+      expect(await authService.login('admin', 'wrong', null)).toBeNull();
+    }
+    const ok = await authService.login('admin', 'correct-password', null);
+    expect(ok?.token).toBeTruthy(); // 4 fails still under the limit
+  });
+
+  it('returns an indistinguishable 401 for an unknown user (dummy-hash path)', async () => {
+    const { app } = await buildStatefulApp();
+    const res = await request(app).post('/api/admin/login')
+      .send({ username: 'ghost-no-such-user', password: 'whatever-pass' });
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe('Invalid credentials');
+  });
+
+  it('invalidates existing sessions when the password changes', async () => {
+    const { app } = await buildStatefulApp();
+    const { cookie } = await loginAgent(app);
+    expect((await request(app).get('/api/admin/me').set('Cookie', cookie)).status).toBe(200);
+
+    const patch = await request(app).patch('/api/admin/users/1')
+      .set('Cookie', cookie)
+      .send({ password: 'a-fresh-long-password' });
+    expect(patch.status).toBe(200);
+
+    // The session that authorized the change is now dead.
+    expect((await request(app).get('/api/admin/me').set('Cookie', cookie)).status).toBe(401);
+  });
+
   it('401 without session; logout invalidates', async () => {
     const { app } = await buildStatefulApp();
     expect((await request(app).get('/api/admin/me')).status).toBe(401);
@@ -208,6 +239,55 @@ describe('contacts via panel', () => {
   });
 });
 
+describe('photo upload validation (rejections write nothing)', () => {
+  const upload = (app, cookie, contentType, body) =>
+    request(app).post('/api/admin/photo').set('Cookie', cookie).set('Content-Type', contentType).send(body);
+
+  it('requires a session', async () => {
+    const { app } = await buildStatefulApp();
+    const res = await request(app).post('/api/admin/photo')
+      .set('Content-Type', 'image/jpeg').send(Buffer.alloc(32, 0xff));
+    expect(res.status).toBe(401);
+  });
+
+  it('rejects an unsupported content-type with 415', async () => {
+    const { app } = await buildStatefulApp();
+    const { cookie } = await loginAgent(app);
+    const res = await upload(app, cookie, 'image/gif', Buffer.alloc(32, 1));
+    expect(res.status).toBe(415);
+  });
+
+  it('rejects an empty/too-small body with 400', async () => {
+    const { app } = await buildStatefulApp();
+    const { cookie } = await loginAgent(app);
+    const res = await upload(app, cookie, 'image/jpeg', Buffer.alloc(8, 0xff));
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/empty or corrupt/i);
+  });
+
+  it('rejects content whose magic bytes do not match the declared type', async () => {
+    const { app } = await buildStatefulApp();
+    const { cookie } = await loginAgent(app);
+    // Declared PNG, but bytes are not a PNG signature.
+    const res = await upload(app, cookie, 'image/png', Buffer.alloc(32, 0x42));
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/does not match/i);
+  });
+
+  it('returns 400 when magic bytes pass but the image cannot be decoded', async () => {
+    const { app } = await buildStatefulApp();
+    const { cookie } = await loginAgent(app);
+    // Valid PNG signature followed by garbage: passes the magic check, fails sharp.
+    const corrupt = Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      Buffer.alloc(24, 0)
+    ]);
+    const res = await upload(app, cookie, 'image/png', corrupt);
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/could not process/i);
+  });
+});
+
 describe('analytics', () => {
   it('visitor hash is deterministic per day and ip+ua', () => {
     const day = new Date('2026-06-09T10:00:00Z');
@@ -219,17 +299,28 @@ describe('analytics', () => {
     expect(a).toMatch(/^[0-9a-f]{64}$/);
   });
 
-  it('pv returns an id; sv stores section rows', async () => {
+  it('pv returns a signed token; sv stores section rows for it', async () => {
     const { app, db } = await buildStatefulApp();
     const pv = await request(app).post('/api/t/pv').send({ lang: 'es-ES', vw: 1920 });
     expect(pv.status).toBe(200);
-    const id = Number(pv.body.id);
+    const id = pv.body.id; // opaque signed token, round-tripped as-is
 
     const sv = await request(app).post('/api/t/sv').send({
       id, sections: [{ k: 'about', ms: 5000 }, { k: 'skills', ms: 2500 }], scroll: 80
     });
     expect(sv.status).toBe(204);
     expect(db.state.sectionViews).toHaveLength(2);
+  });
+
+  it('sv rejects a forged/unsigned pageview id', async () => {
+    const { app, db } = await buildStatefulApp();
+    for (const id of ['1', '1.deadbeef', 42, '']) {
+      const res = await request(app).post('/api/t/sv').send({
+        id, sections: [{ k: 'about', ms: 5000 }], scroll: 10
+      });
+      expect(res.status).toBe(204);
+    }
+    expect(db.state.sectionViews).toHaveLength(0);
   });
 
   it('sv silently drops malformed batches', async () => {

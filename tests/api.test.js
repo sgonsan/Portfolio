@@ -81,6 +81,26 @@ describe('POST /api/contact', () => {
     expect((await request(app).post('/api/contact').send(body)).status).toBe(200);
     expect((await request(app).post('/api/contact').send(body)).status).toBe(429);
   });
+
+  it('keys the rate limiter on CF-Connecting-IP, not the shared proxy IP', async () => {
+    const { app } = buildApp();
+    const body = { name: 'A', email: 'a@example.com', message: 'hi' };
+    const send = (ip) => request(app).post('/api/contact').set('CF-Connecting-IP', ip).send(body);
+    // Two distinct visitors share one proxy socket (same req.ip) but must get
+    // independent buckets keyed on their real IP.
+    expect((await send('203.0.113.1')).status).toBe(200);
+    expect((await send('203.0.113.1')).status).toBe(429); // same visitor → limited
+    expect((await send('203.0.113.2')).status).toBe(200); // different visitor → own bucket
+  });
+
+  it('logs the real client IP (CF-Connecting-IP) on the contact row', async () => {
+    const { app, db } = buildApp();
+    await request(app).post('/api/contact')
+      .set('CF-Connecting-IP', '203.0.113.7')
+      .send({ name: 'A', email: 'a@example.com', message: 'hi' });
+    const insert = db.calls.find((c) => /INSERT INTO contacts/.test(c.sql));
+    expect(insert.params[3]).toBe('203.0.113.7'); // params: name,email,message,ip,ua
+  });
 });
 
 describe('mailer header injection', () => {
