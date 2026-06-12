@@ -61,9 +61,7 @@ function createApp({
           frameAncestors: ["'none'"]
         }
       },
-      strictTransportSecurity: env.NODE_ENV === 'production'
-        ? { maxAge: 31536000, includeSubDomains: true }
-        : false
+      strictTransportSecurity: { maxAge: 31536000, includeSubDomains: false }
     })
   );
 
