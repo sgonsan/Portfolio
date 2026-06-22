@@ -19,7 +19,9 @@ COPY --from=builder /app/dist ./dist
 COPY server ./server
 COPY db ./db
 COPY scripts ./scripts
-COPY public ./public
+# From builder, not the context: carries gen-preview.js's freshly rendered
+# assets/preview.png (the context copy would shadow it with the stale file).
+COPY --from=builder /app/public ./public
 
 USER node
 EXPOSE 8080
