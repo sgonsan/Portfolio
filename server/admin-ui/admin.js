@@ -260,7 +260,8 @@ function collectFields(container) {
 async function renderContent(stale) {
   contentCache = await api('/content');
   if (stale()) return;
-  const sections = Object.keys(contentCache.content);
+  // meta (SEO/site metadata) is edited in the [site] tab, not here.
+  const sections = Object.keys(contentCache.content).filter((s) => s !== 'meta');
   const current = sections.includes(location.hash.split('?sec=')[1]) ? location.hash.split('?sec=')[1] : sections[0];
 
   const editor = el('div');
