@@ -1,6 +1,9 @@
 # Stage 1: build Astro frontend
 FROM node:24-alpine AS builder
 WORKDIR /app
+# fontconfig + a monospace font so scripts/gen-preview.js (sharp/librsvg)
+# can render the OG card text. Builder-only — not in the runtime image.
+RUN apk add --no-cache fontconfig ttf-dejavu
 COPY package*.json ./
 RUN npm ci
 COPY . .
