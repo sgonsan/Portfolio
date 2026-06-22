@@ -77,7 +77,7 @@ function createApp({
   app.use('/api/scores', createScoresRouter({ db, limiter: limiters.scoresWrite }));
   app.use('/api/content', createContentRouter({ contentService }));
   app.use('/api/t', createTrackRouter({ analytics, limiter: limiters.track }));
-  app.use('/api', createSiteRouter({ db, github }));
+  app.use('/api', createSiteRouter({ db, github, contentService }));
   app.use('/api/admin/analytics', createAdminAnalyticsRouter({ analytics, authService }));
   app.use('/api/admin', createAdminAuthRouter({ authService, limiter: limiters.adminLogin, env }));
   app.use('/api/admin', createAdminPanelRouter({ db, authService, contentService }));

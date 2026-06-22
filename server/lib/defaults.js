@@ -7,7 +7,10 @@ const DEFAULT_CONTENT = {
   meta: {
     title: 'Sergio González Sánchez - Portfolio',
     description: 'Portfolio of Sergio González Sánchez, developer specialized in C++ and Python. Explore skills, projects and achievements.',
-    og_description: 'Passionate C++ and Python developer focused on scalable and efficient solutions. Check out my projects and achievements.'
+    og_description: 'Passionate C++ and Python developer focused on scalable and efficient solutions. Check out my projects and achievements.',
+    og_image: 'https://elbiti.com/assets/preview.png',
+    site_url: 'https://elbiti.com',
+    site_name: 'Sergio González Sánchez Portfolio'
   },
   about: {
     path: '~/about',
@@ -28,7 +31,15 @@ const DEFAULT_CONTENT = {
   projects: {
     path: '~/projects',
     title: 'projects',
-    error_text: 'could not load projects — find them on github.com/sgonsan'
+    error_text: 'could not load projects — find them on github.com/sgonsan',
+    repos: [
+      { name: 'Portfolio' },
+      { name: 'PassMaker' },
+      { name: 'Wake-On-Lan_Manager' },
+      { name: 'RAM' },
+      { name: 'Tic-Tac-Toe' },
+      { name: 'Wordle_Bot' }
+    ]
   },
   timeline: {
     path: '~/timeline',

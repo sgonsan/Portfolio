@@ -45,7 +45,8 @@ function createGithubClient({ token, owner, fetchImpl = fetch } = {}) {
     },
 
     async repos(names) {
-      const cached = cacheGet('repos');
+      const cacheKey = 'repos:' + [...names].sort().join(',');
+      const cached = cacheGet(cacheKey);
       if (cached) return cached;
       const settled = await Promise.allSettled(
         names.map(async (name) => {
@@ -63,7 +64,7 @@ function createGithubClient({ token, owner, fetchImpl = fetch } = {}) {
       );
       const ok = settled.filter((r) => r.status === 'fulfilled').map((r) => r.value);
       if (ok.length === 0) throw new Error('All GitHub repo requests failed');
-      cacheSet('repos', ok, REPOS_TTL);
+      cacheSet(cacheKey, ok, REPOS_TTL);
       return ok;
     },
 

@@ -2,18 +2,9 @@
 const express = require('express');
 const { asyncWrap } = require('../middleware/errors');
 
-const PROJECT_REPOS = [
-  'Portfolio',
-  'PassMaker',
-  'Wake-On-Lan_Manager',
-  'RAM',
-  'Tic-Tac-Toe',
-  'Wordle_Bot'
-];
-
 const STATS_REPO = 'portfolio';
 
-function createSiteRouter({ db, github }) {
+function createSiteRouter({ db, github, contentService }) {
   const router = express.Router();
 
   async function fetchStats() {
@@ -55,10 +46,14 @@ function createSiteRouter({ db, github }) {
   }));
 
   router.get('/projects', asyncWrap(async (req, res) => {
-    res.json(await github.repos(PROJECT_REPOS));
+    const siteData = await contentService.get();
+    const names = (siteData.content.projects.repos || [])
+      .map((r) => r.name)
+      .filter(Boolean);
+    res.json(await github.repos(names));
   }));
 
   return router;
 }
 
-module.exports = { createSiteRouter, PROJECT_REPOS };
+module.exports = { createSiteRouter };

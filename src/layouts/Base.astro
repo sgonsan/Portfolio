@@ -6,14 +6,17 @@ const { meta = {} } = Astro.props;
 const title = meta.title ?? 'Sergio González Sánchez - Portfolio';
 const description = meta.description ?? '';
 const ogDescription = meta.og_description ?? description;
+const ogImage = meta.og_image ?? 'https://elbiti.com/assets/preview.png';
+const siteUrl = (meta.site_url ?? 'https://elbiti.com').replace(/\/$/, '');
+const siteName = meta.site_name ?? 'Sergio González Sánchez Portfolio';
 
 // JSON-LD: escape `<` so editable strings can never break out of the tag.
 const jsonLd = JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'Person',
   name: 'Sergio González Sánchez',
-  url: 'https://elbiti.com',
-  image: 'https://elbiti.com/assets/personal-foto.jpg',
+  url: siteUrl,
+  image: `${siteUrl}/assets/personal-foto.jpg`,
   jobTitle: 'Software Developer',
   description: ogDescription,
   sameAs: [
@@ -36,20 +39,20 @@ const jsonLd = JSON.stringify({
   <!-- Open Graph -->
   <meta property="og:title" content={title} />
   <meta property="og:description" content={ogDescription} />
-  <meta property="og:image" content="https://elbiti.com/assets/preview.png" />
-  <meta property="og:url" content="https://elbiti.com/" />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:url" content={`${siteUrl}/`} />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Sergio González Sánchez Portfolio" />
+  <meta property="og:site_name" content={siteName} />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={ogDescription} />
-  <meta name="twitter:image" content="https://elbiti.com/assets/preview.png" />
+  <meta name="twitter:image" content={ogImage} />
 
   <link rel="icon" type="image/svg+xml" href="/assets/icon.svg">
   <link rel="apple-touch-icon" href="/assets/apple-icon.png">
-  <link rel="canonical" href="https://elbiti.com/">
+  <link rel="canonical" href={`${siteUrl}/`}>
 
   <link rel="preload" href="/assets/fonts/Intel_One_Mono/IntelOneMono-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="/assets/fonts/Poppins/Poppins-Regular.ttf" as="font" type="font/ttf" crossorigin>

@@ -76,7 +76,7 @@ const routes = {
   '#/sections': renderSections,
   '#/contacts': renderContacts,
   '#/accounts': renderAccounts,
-  '#/photo': renderPhoto
+  '#/site': renderSite
 };
 
 let routeGen = 0;
@@ -457,15 +457,29 @@ async function renderAccounts(stale) {
   );
 }
 
-// ---------------- photo ----------------
-async function renderPhoto(_stale) {
+// ---------------- site (photo + SEO) ----------------
+async function renderSite(stale) {
+  const contentData = await api('/content');
+  if (stale()) return;
+
   const bust = Date.now();
   const img = el('img', { src: `/assets/personal-foto.jpg?v=${bust}`, alt: 'profile photo', class: 'photo-preview' });
   const fileInput = el('input', { type: 'file', id: 'photo-file', accept: 'image/jpeg,image/png,image/webp' });
-  const status = el('p', { class: 'error' });
+  const photoStatus = el('p', { class: 'error' });
+
+  const metaEditor = el('div');
+  const metaStatus = el('p', { class: 'error' });
+
+  metaEditor.replaceChildren(
+    ...Object.entries(contentData.content.meta).map(([field, value]) =>
+      fieldEditor('meta', field, value)
+    )
+  );
 
   view().replaceChildren(
-    el('h2', { text: 'photo' }),
+    el('h2', { text: 'site' }),
+
+    el('h3', { text: 'profile photo' }),
     el('div', { class: 'panel' },
       el('p', { class: 'dim', text: 'current profile photo' }),
       img
@@ -477,10 +491,10 @@ async function renderPhoto(_stale) {
         el('button', {
           text: 'upload',
           onclick: async () => {
-            status.className = 'error';
-            status.textContent = '';
+            photoStatus.className = 'error';
+            photoStatus.textContent = '';
             const file = fileInput.files[0];
-            if (!file) { status.textContent = 'select a file first'; return; }
+            if (!file) { photoStatus.textContent = 'select a file first'; return; }
             try {
               const res = await fetch('/api/admin/photo', {
                 method: 'POST',
@@ -490,15 +504,37 @@ async function renderPhoto(_stale) {
               if (res.status === 401) { showLogin(); return; }
               const data = await res.json();
               if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-              status.className = 'ok';
-              status.textContent = 'uploaded — live now';
+              photoStatus.className = 'ok';
+              photoStatus.textContent = 'uploaded — live now';
               img.src = `/assets/personal-foto.jpg?v=${Date.now()}`;
             } catch (err) {
-              status.textContent = err.message;
+              photoStatus.textContent = err.message;
             }
           }
         }),
-        status
+        photoStatus
+      )
+    ),
+
+    el('h3', { text: 'seo & metadata' }),
+    el('div', { class: 'panel' },
+      metaEditor,
+      el('div', { class: 'save-bar' },
+        el('button', {
+          text: 'save meta',
+          onclick: async () => {
+            metaStatus.className = 'error';
+            metaStatus.textContent = '';
+            try {
+              await api('/content/meta', { method: 'PUT', body: { fields: collectFields(metaEditor) } });
+              metaStatus.className = 'ok';
+              metaStatus.textContent = 'saved — live on next visit';
+            } catch (err) {
+              metaStatus.textContent = err.message;
+            }
+          }
+        }),
+        metaStatus
       )
     )
   );
