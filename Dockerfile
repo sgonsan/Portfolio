@@ -20,7 +20,10 @@ COPY --from=builder /app/dist ./dist
 COPY server ./server
 COPY db ./db
 COPY scripts ./scripts
-COPY public ./public
+# node-owned: assets/ is a persistent volume initialised from this path, and
+# the app (USER node) renders preview.png + writes photo uploads into it at
+# runtime — root-owned files would make those writes EACCES.
+COPY --chown=node:node public ./public
 
 USER node
 EXPOSE 8080
