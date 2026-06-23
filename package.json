@@ -8,7 +8,7 @@
     "dev:api": "nodemon --watch server server/index.js",
     "dev:web": "astro dev --port 4321",
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
-    "build": "node scripts/gen-preview.js && astro build",
+    "build": "astro build",
     "gen:preview": "node scripts/gen-preview.js",
     "preview": "astro preview",
     "test": "vitest run",

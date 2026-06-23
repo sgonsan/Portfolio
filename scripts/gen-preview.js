@@ -74,7 +74,7 @@ async function circularPhoto() {
     .toBuffer();
 }
 
-async function main() {
+async function generatePreview() {
   const name = DEFAULT_CONTENT.about.name;
   const langs = DEFAULT_CONTENT.skills.groups[0]?.items ?? [];
   const languages = langs.join(' · ');
@@ -96,7 +96,12 @@ async function main() {
   console.log(`preview.png generated (${WIDTH}x${HEIGHT})${photo ? '' : ' — no photo found, text-only'}`);
 }
 
-main().catch((err) => {
-  // Never fail the build over a preview image; warn and move on.
-  console.error('preview.png generation failed:', err.message);
-});
+module.exports = { generatePreview };
+
+// CLI: `node scripts/gen-preview.js` (or `npm run gen:preview`). Never exit
+// non-zero — a missing preview must not break a build or boot.
+if (require.main === module) {
+  generatePreview().catch((err) =>
+    console.error('preview.png generation failed:', err.message)
+  );
+}

@@ -1,9 +1,6 @@
 # Stage 1: build Astro frontend
 FROM node:24-alpine AS builder
 WORKDIR /app
-# fontconfig + a monospace font so scripts/gen-preview.js (sharp/librsvg)
-# can render the OG card text. Builder-only — not in the runtime image.
-RUN apk add --no-cache fontconfig ttf-dejavu
 COPY package*.json ./
 RUN npm ci
 COPY . .
@@ -13,15 +10,17 @@ RUN npm run build
 FROM node:24-alpine
 WORKDIR /app
 ENV NODE_ENV=production
+# fontconfig + a monospace font so scripts/gen-preview.js (sharp/librsvg)
+# can render the OG card text at runtime (assets/ is a persistent volume,
+# so the preview is generated on boot, not baked into the image).
+RUN apk add --no-cache fontconfig ttf-dejavu
 COPY package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=builder /app/dist ./dist
 COPY server ./server
 COPY db ./db
 COPY scripts ./scripts
-# From builder, not the context: carries gen-preview.js's freshly rendered
-# assets/preview.png (the context copy would shadow it with the stale file).
-COPY --from=builder /app/public ./public
+COPY public ./public
 
 USER node
 EXPOSE 8080

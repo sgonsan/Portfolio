@@ -9,6 +9,7 @@ const { createGithubClient } = require('./lib/github');
 const { createContentService } = require('./lib/content');
 const { createAuthService } = require('./lib/authService');
 const { createAnalytics } = require('./lib/analytics');
+const { generatePreview } = require('../scripts/gen-preview');
 
 async function main() {
   const db = createPool();
@@ -26,6 +27,10 @@ async function main() {
     .catch((err) => console.error('SMTP error:', err.message));
 
   analytics.purgeOld().catch((err) => console.error('Analytics purge failed:', err.message));
+
+  // assets/ is a persistent volume that shadows the image, so the OG preview
+  // can't be baked in at build time — render it into the volume on boot.
+  generatePreview().catch((err) => console.error('Preview generation failed:', err.message));
 
   // Astro SSR bundle is ESM — load it dynamically from CJS.
   let ssrHandler = null;

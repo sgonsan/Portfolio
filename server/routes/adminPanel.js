@@ -8,6 +8,7 @@ const sharp = require('sharp');
 const { asyncWrap } = require('../middleware/errors');
 const { requireSession } = require('../middleware/session');
 const { csvCell } = require('../lib/sanitize');
+const { generatePreview } = require('../../scripts/gen-preview');
 
 const ALLOWED_PHOTO_MIME = ['image/jpeg', 'image/png', 'image/webp'];
 const ASSETS_DIR = path.join(__dirname, '../../public/assets');
@@ -119,6 +120,9 @@ function createAdminPanelRouter({ db, authService, contentService }) {
 
       await fs.rename(destTmp, dest);
       await fs.rename(lowTmp, low);
+
+      // Refresh the OG card so its photo matches the new upload (best-effort).
+      generatePreview().catch((err) => console.error('Preview regen failed:', err.message));
 
       res.json({ ok: true });
     })
