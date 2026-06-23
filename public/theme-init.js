@@ -7,6 +7,18 @@
   // Reload starts at the top: opt out of the browser restoring the previous
   // scroll position, which otherwise lands mid-page and skips the hero.
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  // A leftover #section hash (from clicking a nav link) makes the browser jump
+  // to that section on reload. On reload only, drop the hash so refresh shows
+  // the hero. Fresh visits keep it, so deep-links like /#projects still work.
+  try {
+    var navEntry = performance.getEntriesByType('navigation')[0];
+    var isReload = navEntry
+      ? navEntry.type === 'reload'
+      : (performance.navigation && performance.navigation.type === 1);
+    if (isReload && location.hash) {
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  } catch (e) { /* perf API blocked — leave hash as-is */ }
   try {
     var saved = localStorage.getItem('theme');
     var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
