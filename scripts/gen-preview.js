@@ -92,9 +92,9 @@ async function generatePreview() {
     });
   }
 
-  // Write to a temp file then rename: rename only needs write on the
-  // directory, not on the (possibly root-owned, volume-seeded) existing
-  // preview.png — same pattern the photo upload route uses.
+  // Write to a temp file then rename so readers never see a half-written
+  // file, and so the swap needs write on the dir, not the old file — same
+  // pattern the photo upload route uses.
   const tmp = `${OUT}.tmp`;
   await sharp(svg).composite(composites).png().toFile(tmp);
   await fs.promises.rename(tmp, OUT);

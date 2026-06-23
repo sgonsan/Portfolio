@@ -129,8 +129,8 @@ function createAdminPanelRouter({ db, authService, contentService }) {
   );
 
   // ----- og preview -----
-  // Regenerate assets/preview.png on demand. Surfaces the real error (e.g.
-  // EACCES on the persistent volume) instead of failing silently on boot.
+  // Regenerate assets/preview.png on demand, surfacing any error to the panel
+  // instead of failing silently like the boot/upload regeneration does.
   router.post('/preview', asyncWrap(async (req, res) => {
     try {
       await generatePreview();

@@ -28,8 +28,7 @@ async function main() {
 
   analytics.purgeOld().catch((err) => console.error('Analytics purge failed:', err.message));
 
-  // assets/ is a persistent volume that shadows the image, so the OG preview
-  // can't be baked in at build time — render it into the volume on boot.
+  // Refresh the OG card on boot so it reflects the current content and photo.
   generatePreview().catch((err) => console.error('Preview generation failed:', err.message));
 
   // Astro SSR bundle is ESM — load it dynamically from CJS.

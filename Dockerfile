@@ -10,9 +10,9 @@ RUN npm run build
 FROM node:24-alpine
 WORKDIR /app
 ENV NODE_ENV=production
-# fontconfig + a monospace font so scripts/gen-preview.js (sharp/librsvg)
-# can render the OG card text at runtime (assets/ is a persistent volume,
-# so the preview is generated on boot, not baked into the image).
+# fontconfig + a monospace font: scripts/gen-preview.js (sharp/librsvg)
+# re-renders the OG card at runtime — on boot, after a photo upload, and from
+# the admin button — so the fonts must be present in the runtime image.
 RUN apk add --no-cache fontconfig ttf-dejavu
 COPY package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
@@ -20,9 +20,9 @@ COPY --from=builder /app/dist ./dist
 COPY server ./server
 COPY db ./db
 COPY scripts ./scripts
-# node-owned: assets/ is a persistent volume initialised from this path, and
-# the app (USER node) renders preview.png + writes photo uploads into it at
-# runtime — root-owned files would make those writes EACCES.
+# node-owned: the app (USER node) writes into public/assets at runtime
+# (preview.png, photo uploads), so it must own that dir — a root-owned
+# COPY would make those writes fail with EACCES.
 COPY --chown=node:node public ./public
 
 USER node
