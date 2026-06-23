@@ -94,7 +94,19 @@ function createApp({
     maxAge: '1y',
     immutable: true
   }));
-  app.use('/assets', express.static(path.join(ROOT, 'public/assets'), { maxAge: '30d' }));
+  // Most assets (fonts, icons) are immutable → cache hard. But the profile
+  // photo and the generated OG preview are rewritten at runtime, so a 30d
+  // cache (browser + Cloudflare) would pin a stale copy for weeks — give
+  // those a short, revalidating TTL.
+  const MUTABLE_ASSETS = new Set(['preview.png', 'personal-foto.jpg', 'personal-foto-low-res.jpg']);
+  app.use('/assets', express.static(path.join(ROOT, 'public/assets'), {
+    maxAge: '30d',
+    setHeaders: (res, filePath) => {
+      if (MUTABLE_ASSETS.has(path.basename(filePath))) {
+        res.setHeader('Cache-Control', 'public, max-age=300, must-revalidate');
+      }
+    }
+  }));
   app.use(express.static(path.join(ROOT, 'dist/client')));
   app.use(express.static(path.join(ROOT, 'public')));
 
