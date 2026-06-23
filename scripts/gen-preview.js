@@ -92,7 +92,12 @@ async function generatePreview() {
     });
   }
 
-  await sharp(svg).composite(composites).png().toFile(OUT);
+  // Write to a temp file then rename: rename only needs write on the
+  // directory, not on the (possibly root-owned, volume-seeded) existing
+  // preview.png — same pattern the photo upload route uses.
+  const tmp = `${OUT}.tmp`;
+  await sharp(svg).composite(composites).png().toFile(tmp);
+  await fs.promises.rename(tmp, OUT);
   console.log(`preview.png generated (${WIDTH}x${HEIGHT})${photo ? '' : ' — no photo found, text-only'}`);
 }
 

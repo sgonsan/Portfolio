@@ -128,6 +128,18 @@ function createAdminPanelRouter({ db, authService, contentService }) {
     })
   );
 
+  // ----- og preview -----
+  // Regenerate assets/preview.png on demand. Surfaces the real error (e.g.
+  // EACCES on the persistent volume) instead of failing silently on boot.
+  router.post('/preview', asyncWrap(async (req, res) => {
+    try {
+      await generatePreview();
+      res.json({ ok: true });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }));
+
   // ----- contacts -----
   router.get('/contacts', asyncWrap(async (req, res) => {
     const { rows } = await db.query(CONTACTS_SQL);

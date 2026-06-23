@@ -471,6 +471,9 @@ async function renderSite(stale) {
   const metaEditor = el('div');
   const metaStatus = el('p', { class: 'error' });
 
+  const ogImg = el('img', { src: `/assets/preview.png?v=${bust}`, alt: 'social preview', class: 'photo-preview' });
+  const ogStatus = el('p', { class: 'error' });
+
   metaEditor.replaceChildren(
     ...Object.entries(contentData.content.meta).map(([field, value]) =>
       fieldEditor('meta', field, value)
@@ -536,6 +539,31 @@ async function renderSite(stale) {
           }
         }),
         metaStatus
+      )
+    ),
+
+    el('h3', { text: 'social preview (og:image)' }),
+    el('div', { class: 'panel' },
+      el('p', { class: 'dim', text: 'auto-generated card from your name, skills and photo — regenerate after changing them' }),
+      ogImg,
+      el('div', { class: 'save-bar' },
+        el('button', {
+          text: 'regenerate preview',
+          onclick: async () => {
+            ogStatus.className = 'error';
+            ogStatus.textContent = 'generating…';
+            try {
+              await api('/preview', { method: 'POST' });
+              ogStatus.className = 'ok';
+              ogStatus.textContent = 'regenerated — live now';
+              ogImg.src = `/assets/preview.png?v=${Date.now()}`;
+            } catch (err) {
+              ogStatus.className = 'error';
+              ogStatus.textContent = err.message;
+            }
+          }
+        }),
+        ogStatus
       )
     )
   );
