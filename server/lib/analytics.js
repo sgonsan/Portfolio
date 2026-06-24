@@ -170,9 +170,12 @@ function createAnalytics(db, geo) {
     async topDimension(dim, query) {
       if (!DIMENSIONS.includes(dim)) return { error: 'Unknown dimension' };
       const { from, to } = rangeFromQuery(query);
+      // A null referrer means the visit had no Referer header — that's direct
+      // traffic, not "unknown". Label it honestly so the panel is meaningful.
+      const fallback = dim === 'referrer_host' ? 'direct' : 'unknown';
       // dim is whitelist-validated above — safe to interpolate.
       const { rows } = await db.query(
-        `SELECT COALESCE(${dim}::text, 'unknown') AS value, COUNT(*)::int AS views
+        `SELECT COALESCE(${dim}::text, '${fallback}') AS value, COUNT(*)::int AS views
          FROM analytics_pageviews WHERE ts BETWEEN $1 AND $2
          GROUP BY value ORDER BY views DESC LIMIT 20`,
         [from, to]

@@ -107,42 +107,122 @@ let range = {
 
 function qs() { return `?from=${range.from}&to=${range.to}`; }
 
-function barList(title, rows, valueKey = 'views', labelKey = 'value') {
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const svgEl = (tag, attrs = {}) => {
+  const n = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  return n;
+};
+const fmtSecs = (ms) => {
+  const s = Math.round(ms / 1000);
+  return s >= 60 ? `${Math.floor(s / 60)}m ${s % 60}s` : `${s}s`;
+};
+
+// Compact top-N list with proportional bars and a share-of-total label.
+function barList(title, rows, opts = {}) {
+  const { valueKey = 'views', labelKey = 'value', limit = 8, note } = opts;
+  const total = rows.reduce((a, r) => a + r[valueKey], 0);
   const max = Math.max(1, ...rows.map((r) => r[valueKey]));
+  const shown = rows.slice(0, limit);
   return el('div', { class: 'panel' },
     el('h3', { text: title }),
-    ...(rows.length ? rows : [{ [labelKey]: '—', [valueKey]: 0 }]).map((r) =>
-      el('div', { class: 'bar-row' },
-        el('span', { class: 'bar-label', text: String(r[labelKey]) }),
-        el('div', { class: 'bar-track' },
-          el('div', { class: 'bar-fill', style: `width:${(r[valueKey] / max) * 100}%` })
-        ),
-        el('span', { class: 'bar-val', text: String(r[valueKey]) })
-      )
-    )
+    note ? el('p', { class: 'hint', text: note }) : '',
+    shown.length
+      ? el('div', { class: 'bars' }, ...shown.map((r) =>
+          el('div', { class: 'bar-row' },
+            el('span', { class: 'bar-label', title: String(r[labelKey]), text: String(r[labelKey]) }),
+            el('div', { class: 'bar-track' },
+              el('div', { class: 'bar-fill', style: `width:${(r[valueKey] / max) * 100}%` })
+            ),
+            el('span', { class: 'bar-val', text: String(r[valueKey]) }),
+            el('span', { class: 'bar-pct', text: total ? `${Math.round((r[valueKey] / total) * 100)}%` : '' })
+          )
+        ))
+      : el('p', { class: 'empty', text: 'no data yet' })
   );
 }
 
-function lineChart(rows) {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('class', 'chart');
-  svg.setAttribute('viewBox', '0 0 400 140');
-  svg.setAttribute('preserveAspectRatio', 'none');
-  const max = Math.max(1, ...rows.map((r) => r.views));
-  const baseline = document.createElementNS(svg.namespaceURI, 'line');
-  Object.entries({ x1: 0, y1: 130, x2: 400, y2: 130 }).forEach(([k, v]) => baseline.setAttribute(k, v));
-  svg.appendChild(baseline);
-  if (rows.length) {
-    const pts = rows.map((r, i) => {
-      const x = rows.length === 1 ? 200 : (i / (rows.length - 1)) * 390 + 5;
-      const y = 125 - (r.views / max) * 110;
-      return `${x},${y}`;
-    });
-    const line = document.createElementNS(svg.namespaceURI, 'polyline');
-    line.setAttribute('points', pts.join(' '));
-    svg.appendChild(line);
+// Daily views as a filled area, with uniques as a second line.
+function areaChart(rows) {
+  const W = 400, H = 140, pad = 6, floor = H - 8;
+  const svg = svgEl('svg', { class: 'chart', viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'none' });
+  const max = Math.max(1, ...rows.map((r) => Math.max(r.views, r.uniques)));
+  // horizontal gridlines at 50% / 100%
+  for (const f of [0.5, 1]) {
+    const y = floor - (floor - pad) * f;
+    svg.appendChild(svgEl('line', { class: 'grid', x1: 0, y1: y, x2: W, y2: y }));
   }
+  svg.appendChild(svgEl('line', { x1: 0, y1: floor, x2: W, y2: floor }));
+  if (!rows.length) return svg;
+
+  const x = (i) => rows.length === 1 ? W / 2 : (i / (rows.length - 1)) * (W - 2 * pad) + pad;
+  const y = (v) => floor - (v / max) * (floor - pad);
+  const viewsPts = rows.map((r, i) => `${x(i)},${y(r.views)}`);
+  // area = views line closed down to the baseline
+  svg.appendChild(svgEl('polygon', {
+    class: 'area',
+    points: `${pad},${floor} ${viewsPts.join(' ')} ${x(rows.length - 1)},${floor}`
+  }));
+  svg.appendChild(svgEl('polyline', { class: 'line-views', points: viewsPts.join(' ') }));
+  svg.appendChild(svgEl('polyline', { class: 'line-uniques', points: rows.map((r, i) => `${x(i)},${y(r.uniques)}`).join(' ') }));
   return svg;
+}
+
+// Slim 24-slot activity strip (UTC) — replaces the old wall of 24 bars.
+function hourStrip(hours) {
+  const counts = Array.from({ length: 24 }, () => 0);
+  hours.forEach((h) => { if (h.hour >= 0 && h.hour < 24) counts[h.hour] = h.views; });
+  const max = Math.max(1, ...counts);
+  return el('div', { class: 'panel' },
+    el('h3', { text: 'activity by hour (UTC)' }),
+    el('div', { class: 'spark' }, ...counts.map((v, h) =>
+      el('div', {
+        class: 'spark-bar', title: `${String(h).padStart(2, '0')}:00 — ${v} views`,
+        style: `height:${Math.max(3, (v / max) * 100)}%`
+      })
+    )),
+    el('div', { class: 'spark-axis' }, ...['00', '06', '12', '18'].map((t) => el('span', { text: t })))
+  );
+}
+
+// Engagement: views + avg dwell per section in one table (merges two panels).
+function sectionTable(sections) {
+  const max = Math.max(1, ...sections.map((s) => s.views));
+  return el('div', { class: 'panel wide' },
+    el('h3', { text: 'sections — views & dwell time' }),
+    sections.length
+      ? el('table', { class: 'sec-table' },
+          el('thead', {}, el('tr', {},
+            el('th', { text: 'section' }), el('th', { text: 'views' }), el('th', { text: 'avg time' })
+          )),
+          el('tbody', {}, ...sections.map((s) =>
+            el('tr', {},
+              el('td', {},
+                el('div', { class: 'sec-bar' },
+                  el('div', { class: 'bar-fill', style: `width:${(s.views / max) * 100}%` }),
+                  el('span', { text: s.section_key })
+                )
+              ),
+              el('td', { text: String(s.views) }),
+              el('td', { text: fmtSecs(s.avg_ms) })
+            )
+          ))
+        )
+      : el('p', { class: 'empty', text: 'no section data yet' })
+  );
+}
+
+function peakHourLabel(hours) {
+  if (!hours.length) return '—';
+  const top = hours.reduce((a, b) => (b.views > a.views ? b : a));
+  return `${String(top.hour).padStart(2, '0')}:00`;
+}
+
+function statCard(num, lbl) {
+  return el('div', { class: 'stat-card' },
+    el('div', { class: 'num', text: String(num) }),
+    el('div', { class: 'lbl', text: lbl })
+  );
 }
 
 async function renderDashboard(stale) {
@@ -152,33 +232,53 @@ async function renderDashboard(stale) {
   if (stale()) return;
   const fromInput = el('input', { type: 'date', value: range.from });
   const toInput = el('input', { type: 'date', value: range.to });
+  const apply = () => {
+    if (fromInput.value) range.from = fromInput.value;
+    if (toInput.value) range.to = toInput.value;
+    route();
+  };
+  const preset = (days, label) => el('button', {
+    class: 'ghost', text: label,
+    onclick: () => {
+      range.to = day(new Date());
+      range.from = day(new Date(Date.now() - (days - 1) * 86_400_000));
+      route();
+    }
+  });
+
+  const perVisitor = summary.uniques ? (summary.views / summary.uniques).toFixed(1) : '0';
+  const geoEmpty = !countries.length || (countries.length === 1 && countries[0].value === 'unknown');
 
   view().replaceChildren(
     el('h2', { text: 'dashboard' }),
     el('div', { class: 'range-bar' },
+      el('div', { class: 'range-presets' }, preset(7, '7d'), preset(30, '30d'), preset(90, '90d')),
       el('div', {}, el('label', { text: 'from' }), fromInput),
       el('div', {}, el('label', { text: 'to' }), toInput),
-      el('button', {
-        class: 'ghost', text: 'apply',
-        onclick: () => {
-          if (fromInput.value) range.from = fromInput.value;
-          if (toInput.value) range.to = toInput.value;
-          route();
-        }
-      })
+      el('button', { text: 'apply', onclick: apply })
     ),
     el('div', { class: 'cards' },
-      el('div', { class: 'stat-card' }, el('div', { class: 'num', text: String(summary.views) }), el('div', { class: 'lbl', text: 'pageviews' })),
-      el('div', { class: 'stat-card' }, el('div', { class: 'num', text: String(summary.uniques) }), el('div', { class: 'lbl', text: 'unique visitors' })),
-      el('div', { class: 'stat-card' }, el('div', { class: 'num', text: `${Math.round(summary.avgSectionMs / 1000)}s` }), el('div', { class: 'lbl', text: 'avg time per section' }))
+      statCard(summary.views, 'pageviews'),
+      statCard(summary.uniques, 'unique visitors'),
+      statCard(perVisitor, 'views / visitor'),
+      statCard(fmtSecs(summary.avgSectionMs), 'avg time / section'),
+      statCard(peakHourLabel(hours), 'peak hour (UTC)')
     ),
     el('div', { class: 'panels' },
-      el('div', { class: 'panel' }, el('h3', { text: 'daily views' }), lineChart(series)),
-      barList('hours (UTC)', hours, 'views', 'hour'),
-      barList('sections by views', sections, 'views', 'section_key'),
-      barList('sections by avg time (ms)', sections.map((s) => ({ ...s })), 'avg_ms', 'section_key'),
-      barList('countries', countries),
+      el('div', { class: 'panel wide' },
+        el('h3', { text: 'daily traffic' }),
+        el('div', { class: 'legend' },
+          el('span', { class: 'k-views', text: '■ views' }),
+          el('span', { class: 'k-uniques', text: '■ uniques' })
+        ),
+        areaChart(series)
+      ),
+      hourStrip(hours),
+      sectionTable(sections),
       barList('referrers', referrers),
+      barList('countries', countries, {
+        note: geoEmpty ? 'no geo resolved — needs real client IP (set CF_ORIGIN_SECRET)' : undefined
+      }),
       barList('devices', devices),
       barList('browsers', browsers),
       barList('os', oses),
