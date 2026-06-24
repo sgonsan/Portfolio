@@ -130,6 +130,25 @@ svg.chart .line-uniques { stroke: var(--accent-secondary); stroke-width: 1.5; st
 .legend .k-views { color: var(--accent-color); }
 .legend .k-uniques { color: var(--accent-secondary); }
 
+/* hover layer */
+.chart-wrap { position: relative; cursor: crosshair; }
+svg.chart .guide { stroke: var(--text-dim); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+svg.chart .dot-v { fill: var(--accent-color); stroke: var(--bg-color); stroke-width: 1; vector-effect: non-scaling-stroke; }
+svg.chart .dot-u { fill: var(--accent-secondary); stroke: var(--bg-color); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.chart-tip {
+  display: none;
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  background: var(--card-bg);
+  border: 1px solid var(--accent-color);
+  padding: 0.35rem 0.55rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.chart-tip div:first-child { color: var(--accent-color); }
+
 /* hourly activity strip */
 .caption { font-size: 0.78rem; margin: -0.3rem 0 0.6rem; }
 .caption strong { color: var(--accent-color); }

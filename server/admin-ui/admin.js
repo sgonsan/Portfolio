@@ -124,6 +124,35 @@ const fmtDateTime = (v) => {
   if (Number.isNaN(d.getTime())) return '';
   return `${p2(d.getDate())}/${p2(d.getMonth() + 1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
 };
+// Series days are UTC-bucketed — format with UTC getters so they don't drift.
+const fmtDay = (v) => {
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return '';
+  return `${p2(d.getUTCDate())}/${p2(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}`;
+};
+
+// One shared cursor-following tooltip, reused by every chart.
+function chartTip() {
+  let node = document.getElementById('chart-tip');
+  if (!node) {
+    node = el('div', { id: 'chart-tip', class: 'chart-tip' });
+    document.body.appendChild(node);
+  }
+  return node;
+}
+function showTip(lines, clientX, clientY) {
+  const t = chartTip();
+  t.replaceChildren(...lines.map((l) => el('div', { text: l })));
+  t.style.display = 'block';
+  // Flip to the left of the cursor near the right edge so it never clips.
+  const offset = clientX > window.innerWidth - 160 ? -12 - t.offsetWidth : 14;
+  t.style.left = `${clientX + offset}px`;
+  t.style.top = `${clientY + 14}px`;
+}
+function hideTip() {
+  const t = document.getElementById('chart-tip');
+  if (t) t.style.display = 'none';
+}
 
 // Compact top-N list with proportional bars and a share-of-total label.
 function barList(title, rows, opts = {}) {
@@ -149,10 +178,12 @@ function barList(title, rows, opts = {}) {
   );
 }
 
-// Daily views as a filled area, with uniques as a second line.
+// Daily views as a filled area, with uniques as a second line. Hovering
+// reveals a guide line, markers and a tooltip for the nearest day.
 function areaChart(rows) {
   const W = 400, H = 140, pad = 6, floor = H - 8;
   const svg = svgEl('svg', { class: 'chart', viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'none' });
+  const wrap = el('div', { class: 'chart-wrap' }, svg);
   const max = Math.max(1, ...rows.map((r) => Math.max(r.views, r.uniques)));
   // horizontal gridlines at 50% / 100%
   for (const f of [0.5, 1]) {
@@ -160,7 +191,7 @@ function areaChart(rows) {
     svg.appendChild(svgEl('line', { class: 'grid', x1: 0, y1: y, x2: W, y2: y }));
   }
   svg.appendChild(svgEl('line', { x1: 0, y1: floor, x2: W, y2: floor }));
-  if (!rows.length) return svg;
+  if (!rows.length) return wrap;
 
   const x = (i) => rows.length === 1 ? W / 2 : (i / (rows.length - 1)) * (W - 2 * pad) + pad;
   const y = (v) => floor - (v / max) * (floor - pad);
@@ -172,7 +203,30 @@ function areaChart(rows) {
   }));
   svg.appendChild(svgEl('polyline', { class: 'line-views', points: viewsPts.join(' ') }));
   svg.appendChild(svgEl('polyline', { class: 'line-uniques', points: rows.map((r, i) => `${x(i)},${y(r.uniques)}`).join(' ') }));
-  return svg;
+
+  // hover layer
+  const guide = svgEl('line', { class: 'guide', y1: pad, y2: floor });
+  const dotV = svgEl('circle', { class: 'dot-v', r: 3.2 });
+  const dotU = svgEl('circle', { class: 'dot-u', r: 3.2 });
+  const markers = [guide, dotV, dotU];
+  markers.forEach((m) => { m.style.opacity = '0'; svg.appendChild(m); });
+
+  wrap.addEventListener('mousemove', (e) => {
+    const rect = svg.getBoundingClientRect();
+    const fx = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+    const i = Math.round(fx * (rows.length - 1));
+    const gx = x(i);
+    guide.setAttribute('x1', gx); guide.setAttribute('x2', gx);
+    dotV.setAttribute('cx', gx); dotV.setAttribute('cy', y(rows[i].views));
+    dotU.setAttribute('cx', gx); dotU.setAttribute('cy', y(rows[i].uniques));
+    markers.forEach((m) => { m.style.opacity = '1'; });
+    showTip([fmtDay(rows[i].day), `views ${rows[i].views}`, `uniques ${rows[i].uniques}`], e.clientX, e.clientY);
+  });
+  wrap.addEventListener('mouseleave', () => {
+    markers.forEach((m) => { m.style.opacity = '0'; });
+    hideTip();
+  });
+  return wrap;
 }
 
 // 24-slot activity histogram (UTC). Peak hour highlighted; axis cells align
@@ -194,8 +248,9 @@ function hourStrip(hours) {
     el('div', { class: 'spark' }, ...counts.map((v, h) =>
       el('div', {
         class: `spark-bar${h === peak && hasData ? ' peak' : ''}`,
-        title: `${p2(h)}:00 — ${v} views`,
-        style: `height:${Math.max(3, (v / max) * 100)}%`
+        style: `height:${Math.max(3, (v / max) * 100)}%`,
+        onmousemove: (e) => showTip([`${p2(h)}:00 UTC`, `${v} views`], e.clientX, e.clientY),
+        onmouseleave: hideTip
       })
     )),
     el('div', { class: 'spark-axis' }, ...counts.map((_, h) =>
