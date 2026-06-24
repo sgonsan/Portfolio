@@ -131,10 +131,15 @@ svg.chart .line-uniques { stroke: var(--accent-secondary); stroke-width: 1.5; st
 .legend .k-uniques { color: var(--accent-secondary); }
 
 /* hourly activity strip */
-.spark { display: flex; align-items: flex-end; gap: 2px; height: 70px; }
-.spark-bar { flex: 1; background: var(--accent-color); border-radius: 1px 1px 0 0; opacity: 0.85; min-height: 3px; }
+.caption { font-size: 0.78rem; margin: -0.3rem 0 0.6rem; }
+.caption strong { color: var(--accent-color); }
+.caption .dim { color: var(--text-dim); }
+.spark { display: flex; align-items: flex-end; gap: 2px; height: 80px; }
+.spark-bar { flex: 1; background: var(--accent-color); border-radius: 1px 1px 0 0; opacity: 0.6; min-height: 3px; transition: opacity 0.15s; }
 .spark-bar:hover { opacity: 1; }
-.spark-axis { display: flex; justify-content: space-between; color: var(--text-dim); font-size: 0.68rem; margin-top: 0.3rem; }
+.spark-bar.peak { background: var(--accent-secondary); opacity: 1; }
+.spark-axis { display: flex; gap: 2px; color: var(--text-dim); font-size: 0.66rem; margin-top: 0.3rem; }
+.spark-axis span { flex: 1; text-align: center; white-space: nowrap; }
 
 /* sections engagement table */
 .sec-table td:first-child { width: 100%; }

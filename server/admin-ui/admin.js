@@ -117,6 +117,13 @@ const fmtSecs = (ms) => {
   const s = Math.round(ms / 1000);
   return s >= 60 ? `${Math.floor(s / 60)}m ${s % 60}s` : `${s}s`;
 };
+const p2 = (n) => String(n).padStart(2, '0');
+// dd/mm/yyyy hh:mm — explicit so it doesn't fall back to the en-US locale.
+const fmtDateTime = (v) => {
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return '';
+  return `${p2(d.getDate())}/${p2(d.getMonth() + 1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+};
 
 // Compact top-N list with proportional bars and a share-of-total label.
 function barList(title, rows, opts = {}) {
@@ -168,20 +175,32 @@ function areaChart(rows) {
   return svg;
 }
 
-// Slim 24-slot activity strip (UTC) — replaces the old wall of 24 bars.
+// 24-slot activity histogram (UTC). Peak hour highlighted; axis cells align
+// 1:1 under the bars, labelled every 3h so they read as clock hours, not a
+// run-on number.
 function hourStrip(hours) {
   const counts = Array.from({ length: 24 }, () => 0);
   hours.forEach((h) => { if (h.hour >= 0 && h.hour < 24) counts[h.hour] = h.views; });
   const max = Math.max(1, ...counts);
-  return el('div', { class: 'panel' },
+  const peak = counts.indexOf(max);
+  const hasData = counts.some((v) => v > 0);
+
+  return el('div', { class: 'panel wide' },
     el('h3', { text: 'activity by hour (UTC)' }),
+    hasData
+      ? el('p', { class: 'caption' }, el('strong', { text: `${p2(peak)}:00` }),
+          el('span', { class: 'dim', text: ` busiest · ${max} views` }))
+      : '',
     el('div', { class: 'spark' }, ...counts.map((v, h) =>
       el('div', {
-        class: 'spark-bar', title: `${String(h).padStart(2, '0')}:00 — ${v} views`,
+        class: `spark-bar${h === peak && hasData ? ' peak' : ''}`,
+        title: `${p2(h)}:00 — ${v} views`,
         style: `height:${Math.max(3, (v / max) * 100)}%`
       })
     )),
-    el('div', { class: 'spark-axis' }, ...['00', '06', '12', '18'].map((t) => el('span', { text: t })))
+    el('div', { class: 'spark-axis' }, ...counts.map((_, h) =>
+      el('span', { text: h % 3 === 0 ? `${p2(h)}h` : '' })
+    ))
   );
 }
 
@@ -477,7 +496,7 @@ async function renderContacts(stale) {
       )),
       el('tbody', {}, ...rows.map((r) => el('tr', {},
         el('td', { text: String(r.id) }),
-        el('td', { text: new Date(r.created_at).toLocaleString() }),
+        el('td', { text: fmtDateTime(r.created_at) }),
         el('td', { text: r.name }),
         el('td', { text: r.email }),
         el('td', { class: 'msg', text: r.message }),
@@ -497,7 +516,7 @@ async function renderAccounts(stale) {
     el('td', { text: String(u.id) }),
     el('td', { text: u.username }),
     el('td', { text: u.disabled ? 'disabled' : 'active' }),
-    el('td', { text: u.last_login ? new Date(u.last_login).toLocaleString() : 'never' }),
+    el('td', { text: u.last_login ? fmtDateTime(u.last_login) : 'never' }),
     el('td', {},
       el('button', {
         class: u.disabled ? 'ghost' : 'danger',

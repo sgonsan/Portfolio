@@ -12,6 +12,7 @@ function createTrackRouter({ analytics, limiter }) {
     const id = await analytics.recordPageview({
       ip: req.clientIp || req.ip || '',
       ua: req.headers['user-agent'] || '',
+      cfCountry: req.headers['cf-ipcountry'],
       ref,
       lang,
       vw

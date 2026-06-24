@@ -84,8 +84,15 @@ function createAnalytics(db, geo) {
     signPageview,
     verifyPageview,
 
-    async recordPageview({ ip, ua, ref, lang, vw }) {
+    async recordPageview({ ip, ua, ref, lang, vw, cfCountry }) {
       const { device, browser, os } = parseUa(ua);
+      // Country: prefer Cloudflare's CF-IPCountry header (set on origin
+      // requests by default — works even though the proxy hides the real IP
+      // from geoip). Fall back to a geoip lookup. 'XX'/'T1' mean unknown/Tor.
+      const cf = typeof cfCountry === 'string' ? cfCountry.trim().toUpperCase() : '';
+      const country = /^[A-Z]{2}$/.test(cf) && cf !== 'XX' && cf !== 'T1'
+        ? cf
+        : (ip ? geo?.lookup?.(ip)?.country : null) || null;
       const location = ip ? geo?.lookup?.(ip) : null;
       const safeLang = typeof lang === 'string' ? lang.slice(0, 16) : null;
       const viewport = Number.isInteger(vw) && vw > 0 && vw < 20000 ? vw : null;
@@ -96,7 +103,7 @@ function createAnalytics(db, geo) {
         [
           visitorHash(ip || '', ua || ''),
           referrerHost(ref),
-          location?.country || null,
+          country,
           location?.region || null,
           device, browser, os, safeLang, viewport
         ]
